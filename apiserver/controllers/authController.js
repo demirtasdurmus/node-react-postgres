@@ -1,5 +1,5 @@
 const bcrypt = require("bcryptjs");
-const jwtl = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');
 const { promisify } = require('util');
 const catchAsync = require('../utils/catchAsync');
 const signJwtToken = require('../helpers/signJwtToken');
@@ -90,7 +90,7 @@ exports.checkAuth = catchAsync(async (req, res, next) => {
     if (Tj0yWls) {
         // validate token to extract user data
         const token = Buffer.from(Tj0yWls, 'base64').toString('ascii');
-        const decoded = await promisify(jwtl.verify)(token, process.env.JWT_SECRET);
+        const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
         currentUser = await UserInfo.findOne({ where: { id: decoded.id }, attributes: ["id", "first_name", "last_name"] });
         if (currentUser) {
             res.status(200).send({

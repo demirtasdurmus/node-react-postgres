@@ -1,38 +1,38 @@
 .loginWrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-  }
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
 
 .loginFormWrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    background-color: white;
-  }
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background-color: white;
+}
 
-.loginForm  {
-    display: flex;
-    justify-content:center;
-    flex-direction: column;
-    width: 40%;
-    margin-bottom:1rem;
-  }
+.loginForm {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  width: 40%;
+  margin-bottom: 1rem;
+}
 
 .loginForm p {
   margin: auto;
   margin-bottom: 3rem;
-  }
+}
 
 .formTitle {
-    color: #333333;
-    font-family: 'Josefin Sans', sans-serif;
-    font-size: 42px;
-    font-weight: bold;
-    line-height: 1;
-  }
+  color: #333333;
+  font-family: 'Josefin Sans', sans-serif;
+  font-size: 42px;
+  font-weight: bold;
+  line-height: 1;
+}
 
 .formInput {
   line-height: 2.5rem;
@@ -40,15 +40,15 @@
 }
 
 .illustrationWrapper {
-    display: flex;
-    align-items: flex-end;
-    min-height: 100%;
-    background-color: #fffdf2;
-  }
+  display: flex;
+  align-items: flex-end;
+  min-height: 100%;
+  background-color: #fffdf2;
+}
 
-.illustrationWrapper img{
-    height: 80vh;
-  }
+.illustrationWrapper img {
+  height: 80vh;
+}
 
 .loginFormButton {
   line-height: 2.5rem;
@@ -56,7 +56,7 @@
   background-color: #1990ff;
   color: #fff;
   font-weight: bold;
-  font-size:1.3rem;
+  font-size: 1.3rem;
   border: none;
   margin-top: 1.5rem
 }
@@ -64,15 +64,15 @@
 .loginFormButton:hover {
   cursor: pointer;
   background-color: #91c3f3;
-};
+}
 
 .link {
   font-weight: bold;
   font-size: 1.4rem;
-  color:#1990ff;
-};
+  color: #1990ff;
+}
 
 .link:hover {
   cursor: pointer;
-  color:#91c3f3;
-};
+  color: #91c3f3;
+}

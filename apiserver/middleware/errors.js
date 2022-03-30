@@ -7,6 +7,7 @@ const sendErrorDev = (err, res) => {
     console.log("errorMessage=>", err.message);
     console.log("errorStack=>", err.stack);
     console.log(`---------------------------------------------------------------------------`);
+    if (err.statusCode === 401) return res.redirect("/sign-in");
     res.status(err.statusCode).send({
         status: err.status,
         error: err,
@@ -53,6 +54,13 @@ const errorHandler = (err, req, res, next) => {
     if (res.headersSent) {
         console.log("---headers-sent---");
         console.log(err.stack);
+    };
+    // clear cookie in case of jwt error
+    if (
+        err.name === "TokenExpiredError" ||
+        err.name === "JsonWebTokenError" ||
+        err.name === "NotBeforeError") {
+        res.clearCookie("Tj0yWls")
     };
     // configuring error handling based on NODE_ENV
     if (process.env.NODE_ENV === 'production') {

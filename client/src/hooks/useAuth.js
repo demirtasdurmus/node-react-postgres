@@ -41,6 +41,7 @@ export default function useAuth() {
         service.loginUser(values)
             .then((res) => {
                 setUserContext(redirectPage);
+                alertNotification("success", "Logged in successfully");
             })
             .catch((err) => {
                 alertNotification("error", err.response.data.message)

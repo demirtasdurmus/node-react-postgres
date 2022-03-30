@@ -94,7 +94,7 @@ export default function SignIn() {
 
         </Form>
         <h2>Already have an account?</h2>
-        <Link to="/sign-in"><span className={styles.linkage}>Sign In</span></Link>
+        <Link to="/sign-in"><span className={styles.link}>Sign In</span></Link>
       </Col>
     </Row>
   );
