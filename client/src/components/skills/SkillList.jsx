@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import SkillUpdate from "./SkillUpdate";
-import { Table, Tag, Space, Col, Row, Button, Modal } from 'antd';
-import Notification from "../helpers/Notification";
+import { Table, Tag, Space, Button, Modal } from 'antd';
+import Notification from "../../utils/Notification";
 
 
 export default function SkillList(props) {
@@ -123,25 +123,19 @@ export default function SkillList(props) {
 
     return (
         <React.Fragment>
-            <Row>
-                <Col span={12} offset={6}>
-                    <h3>This is the users' list</h3>
-                    <Table
-                        pagination={false}
-                        bordered
-                        columns={columns}
-                        dataSource={data}
-                    />
-                    <Modal visible={isModalVisible} footer={null} destroyOnClose={true} onCancel={toggleModal}>
-                        <SkillUpdate
-                            skillId={skillId}
-                            getUserSkills={getUserSkills}
-                            toggleModal={toggleModal}
-                        />
-                    </Modal>
-                </Col>
-            </Row>
-
+            <Table
+                pagination={false}
+                bordered
+                columns={columns}
+                dataSource={data}
+            />
+            <Modal visible={isModalVisible} footer={null} destroyOnClose={true} onCancel={toggleModal}>
+                <SkillUpdate
+                    skillId={skillId}
+                    getUserSkills={getUserSkills}
+                    toggleModal={toggleModal}
+                />
+            </Modal>
         </React.Fragment >
     )
 };

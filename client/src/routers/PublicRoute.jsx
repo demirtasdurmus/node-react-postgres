@@ -1,19 +1,12 @@
-import React, { useContext } from 'react';
-import { Outlet, Navigate, useLocation } from 'react-router-dom';
-import { UserContext } from "../context/UserContext";
-import Loading from "../components/helpers/Loading";
+import React from 'react';
+import { Outlet } from 'react-router-dom';
+import MainLayout from '../layouts/MainLayout';
 
 
 export default function PublicRoute(props) {
-    const { user, isLoading } = useContext(UserContext);
-    let location = useLocation();
-
-    if (isLoading) {
-        return <Loading />
-    };
-
-    if (user) {
-        return <Outlet />
-    };
-    return <Navigate to="/" state={{ from: location }} replace />;
+    return (
+        <MainLayout>
+            <Outlet />
+        </MainLayout>
+    )
 };

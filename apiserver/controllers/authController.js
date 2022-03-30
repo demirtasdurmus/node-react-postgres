@@ -141,7 +141,7 @@ exports.checkAuth = catchAsync(async (req, res, next) => {
             // validate token to extract user data
             const token = Buffer.from(Tj0yWls, 'base64').toString('ascii');
             const decoded = await promisify(jwtl.verify)(token, process.env.JWT_SECRET);
-            currentUser = await UserInfo.findOne({ where: { id: decoded.id }, attributes: ["id"] });
+            currentUser = await UserInfo.findOne({ where: { id: decoded.id }, attributes: ["id", "first_name", "last_name"] });
         } else {
             res.clearCookie("Tj0yWls");
             res.clearCookie("kho5mfT");

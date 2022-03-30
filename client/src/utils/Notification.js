@@ -5,7 +5,7 @@ export default function openNotificationWithIcon(type, message) {
         placement: 'topRight',
         // bottom: 50,
         duration: 5,
-        rtl: true,
+        rtl: false,
     });
     notification[type]({
         message: message,

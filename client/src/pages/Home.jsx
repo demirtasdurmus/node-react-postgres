@@ -2,6 +2,6 @@ import React from 'react'
 
 export default function Home() {
     return (
-        <div className="App-header">Home</div>
+        <div className="App-header">Home Page</div>
     )
 };

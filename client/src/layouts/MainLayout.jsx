@@ -1,13 +1,13 @@
 import React from 'react';
-
+import { Layout } from 'antd';
 import Header from "./Header";
 
 
 export default function DashboardLayout({ children }) {
     return (
-        <div >
+        <Layout>
             <Header />
             {children}
-        </div>
+        </Layout>
     )
 };

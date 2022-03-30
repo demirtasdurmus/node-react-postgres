@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Row, Col } from 'antd';
 import SkillAdd from "../components/skills/SkillAdd";
 import SkillList from "../components/skills/SkillList";
-import Notification from "../components/helpers/Notification";
-import useAuth from '../hooks/useAuth';
+import Notification from "../utils/Notification";
 
 
 export default function UserSkills() {
-    const { logoutUser } = useAuth();
     // state declaration
     const [userSkills, setUserSkills] = useState([]);
 
@@ -27,14 +26,24 @@ export default function UserSkills() {
 
     return (
         <React.Fragment>
-            <button onClick={logoutUser}>Logout</button>
-            <SkillAdd
-                getUserSkills={getUserSkills}
-            />
-            <SkillList
-                userSkills={userSkills}
-                getUserSkills={getUserSkills}
-            />
+            <Row>
+                <Col span={24} style={{ display: 'flex', justifyContent: 'center' }}>
+                    <SkillAdd
+                        getUserSkills={getUserSkills}
+                    />
+                </Col>
+            </Row>
+            <Row>
+                <Col span={24} style={{ display: 'flex', justifyContent: 'center' }}>
+                    <SkillList
+                        userSkills={userSkills}
+                        getUserSkills={getUserSkills}
+                    />
+                </Col>
+
+            </Row>
+
         </React.Fragment>
+
     )
 };

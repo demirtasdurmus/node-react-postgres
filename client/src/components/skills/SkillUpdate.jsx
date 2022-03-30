@@ -8,7 +8,7 @@ import {
     Space,
     Select,
 } from 'antd';
-import Notification from "../helpers/Notification";
+import Notification from "../../utils/Notification";
 
 
 export default function SkillUpdate(props) {

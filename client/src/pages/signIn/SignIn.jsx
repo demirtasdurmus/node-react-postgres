@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
   Form,
   Input,
@@ -11,11 +11,14 @@ import styles from './SignIn.module.css';
 import useAuth from '../../hooks/useAuth';
 
 
-export default function SignIn() {
+export default function SignIn(props) {
   const { loginUser } = useAuth();
+  let location = useLocation();
+  let redirectPage = location.state && location.state.from.pathname
+  console.log("sign in props", redirectPage)
 
   const onFinish = async (values) => {
-    loginUser(values);
+    loginUser(values, redirectPage);
   };
 
   const onFinishFailed = errorInfo => {
@@ -24,7 +27,7 @@ export default function SignIn() {
 
   return (
     <Row className={styles.loginWrapper}>
-      <Col sm={24} md={12} className={styles.loginFormWrapper}>
+      <Col span={24} className={styles.loginFormWrapper}>
         <Form
           className={styles.loginForm}
           initialValues={{ remember: true }}
@@ -69,10 +72,6 @@ export default function SignIn() {
         </Form>
         <h2>Don't have an account?</h2>
         <Link to="/sign-up"><span className={styles.link}>Sign Up</span></Link>
-      </Col>
-
-      <Col sm={24} md={12} className={styles.illustrationWrapper}>
-        <img src="/loginImage.png" alt="Login" />
       </Col>
     </Row>
   );

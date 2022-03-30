@@ -1,16 +1,33 @@
-import React from 'react';
-import { Layout, Menu } from 'antd';
-// const { Header } = Layout;
+import React, { useContext } from 'react';
+import { UserContext } from "../context/UserContext";
+import useAuth from '../hooks/useAuth';
+import { Link } from 'react-router-dom';
+import { Col } from 'antd';
+
 
 export default function Header() {
+    const { logoutUser } = useAuth();
+    const { user } = useContext(UserContext);
+
     return (
-        <div style={{ position: 'fixed', zIndex: 1, width: '100%' }}>
-            <div className="logo" />
-            <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['2']}>
-                <Menu.Item key="1">nav 1</Menu.Item>
-                <Menu.Item key="2">nav 2</Menu.Item>
-                <Menu.Item key="3">nav 3</Menu.Item>
-            </Menu>
+        <div style={{ width: '100%', height: '5rem', backgroundColor: '#c4c4c4', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '5rem' }}>
+
+            <Col offset={2} span={2} style={{ fontSize: '1.3rem', fontWeight: 'bold' }}>
+                <Link to="/">Home</Link>
+            </Col>
+
+            <Col offset={2} span={2} style={{ fontSize: '1.3rem', fontWeight: 'bold' }}>
+                <Link to="/contact">Contact</Link>
+            </Col>
+
+            <Col offset={2} span={2} style={{ fontSize: '1.3rem', fontWeight: 'bold' }}>
+                <Link to="/about">About</Link>
+            </Col>
+
+            <Col offset={2} span={4} style={{ fontSize: '1.3rem', fontWeight: 'bold', display: 'flex', flexDirection: 'row' }}>
+                {user && user.id ? `${user.first_name} ${user.last_name}` : <Link to="/sign-in">Sign In</Link>}
+                {(user && user.id) && <button onClick={logoutUser} style={{ borderRadius: "20px", border: "none" }}>Logout</button>}
+            </Col>
         </div>
     )
 };

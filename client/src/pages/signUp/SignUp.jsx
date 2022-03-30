@@ -7,14 +7,14 @@ import {
   Col
 } from 'antd';
 import styles from './SignUp.module.css';
-// import useAuth from '../../hooks/useAuth';
+import useAuth from '../../hooks/useAuth';
 
 
 export default function SignIn() {
-  // const { loginUser } = useAuth();
+  const { registerUser } = useAuth();
 
   const onFinish = async (values) => {
-    console.log(values)
+    registerUser(values);
   };
 
   const onFinishFailed = errorInfo => {
@@ -23,7 +23,7 @@ export default function SignIn() {
 
   return (
     <Row className={styles.loginWrapper}>
-      <Col sm={24} md={12} className={styles.loginFormWrapper}>
+      <Col span={24} className={styles.loginFormWrapper}>
         <Form
           className={styles.loginForm}
           initialValues={{ remember: true }}
@@ -81,7 +81,7 @@ export default function SignIn() {
             ]}
           >
             <Input.Password
-              placeholder="passwordAgain"
+              placeholder="Password Again"
               className={styles.formInput}
             />
           </Form.Item>
@@ -96,10 +96,6 @@ export default function SignIn() {
         </Form>
         <h2>Already have an account?</h2>
         <Link to="/sign-in"><span className={styles.linkage}>Sign In</span></Link>
-      </Col>
-
-      <Col sm={24} md={12} className={styles.illustrationWrapper}>
-        <img src="/loginImage.png" alt="Login" />
       </Col>
     </Row>
   );

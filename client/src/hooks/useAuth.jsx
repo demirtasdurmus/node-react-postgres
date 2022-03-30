@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { UserContext } from '../context/UserContext';
-import Notification from "../components/helpers/Notification";
+import Notification from "../utils/Notification";
 
 
 export default function useAuth() {
@@ -11,13 +11,13 @@ export default function useAuth() {
     const { setUser } = useContext(UserContext);
 
     //set user in context and push them home
-    const setUserContext = () => {
+    const setUserContext = (redirectPage) => {
         axios.get("/api/v1/auth/check-auth")
             .then(res => {
                 if (res.data.status === "success") {
                     console.log(res.data)
                     setUser(res.data.data);
-                    navigate('/skills');
+                    navigate(redirectPage ? redirectPage : '/about');
                 };
             })
             .catch(() => {
@@ -26,7 +26,30 @@ export default function useAuth() {
             });
     };
 
-    const loginUser = (values) => {
+    const registerUser = (values) => {
+        const { firstName, lastName, email, password, passwordAgain } = values;
+        axios.post("/api/v1/auth/register", {
+            firstName,
+            lastName,
+            email,
+            password,
+            passwordAgain
+        })
+            .then((res) => {
+                Cookies.set('__session',
+                    window.btoa(`rT94VTe11Y1aTg8D5UKZ5C9wSa1CVwjp${res.data.token.split('.')[1]}${process.env.REACT_APP_CLIENT_UNIFIER}${Date.now() * 1523654}`),
+                    {
+                        expires: 1,
+                        // httpOnly: process.env.NODE_ENV === "production" ? true : false,
+                        secure: true,
+                        sameSite: 'strict'
+                    });
+                setUserContext();
+            })
+            .catch((err) => Notification("error", err.response.data.message));
+    };
+
+    const loginUser = (values, redirectPage) => {
         const { email, password } = values;
         axios.post("/api/v1/auth/login", {
             email,
@@ -41,7 +64,7 @@ export default function useAuth() {
                         secure: true,
                         sameSite: 'strict'
                     });
-                setUserContext();
+                setUserContext(redirectPage);
             })
             .catch((err) => Notification("error", err.response.data.message));
     };
@@ -58,6 +81,7 @@ export default function useAuth() {
             .catch((err) => Notification("error", err.response.data.message));
     };
     return {
+        registerUser,
         loginUser,
         logoutUser
     };
