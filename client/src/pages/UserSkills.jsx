@@ -25,8 +25,8 @@ export default function UserSkills() {
     }, []);
 
     return (
-        <React.Fragment>
-            <Row>
+        <React.Fragment  >
+            <Row style={{ marginTop: '5rem' }}>
                 <Col span={24} style={{ display: 'flex', justifyContent: 'center' }}>
                     <SkillAdd
                         getUserSkills={getUserSkills}

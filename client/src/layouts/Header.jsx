@@ -10,7 +10,7 @@ export default function Header() {
     const { user } = useContext(UserContext);
 
     return (
-        <div style={{ width: '100%', height: '5rem', backgroundColor: '#c4c4c4', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '5rem' }}>
+        <div style={{ width: '100%', height: '5rem', backgroundColor: '#c4c4c4', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
 
             <Col offset={2} span={2} style={{ fontSize: '1.3rem', fontWeight: 'bold' }}>
                 <Link to="/">Home</Link>
