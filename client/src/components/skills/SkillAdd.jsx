@@ -8,7 +8,7 @@ import {
     Space,
     Select,
 } from 'antd';
-import Notification from "../../utils/Notification";
+import alertNotification from "../../utils/alertNotification";
 
 
 export default function SkillAdd(props) {
@@ -43,10 +43,10 @@ export default function SkillAdd(props) {
             .then((res) => {
                 if (res.data.status === "success") {
                     getUserSkills();
-                    Notification('success', "Saved your skill successfully");
+                    alertNotification('success', "Saved your skill successfully");
                 };
             })
-            .catch((err) => Notification('error', err.response.data.message))
+            .catch((err) => alertNotification('error', err.response.data.message))
     };
 
     return (
@@ -111,7 +111,7 @@ export default function SkillAdd(props) {
                             online
                         </Option>
                     </Select>
-                    <Button type="primary" htmlType="submit" shape="round" style={{ width: "100%" }}>
+                    <Button type="primary" shape="round" style={{ width: "100%" }}>
                         Submit
                     </Button>
                 </Space>

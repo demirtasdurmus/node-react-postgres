@@ -1,84 +1,61 @@
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import createChannel from '../utils/createChannel';
+import userService from '../services/userService';
 import { UserContext } from '../context/UserContext';
-import Notification from "../utils/Notification";
+import alertNotification from "../utils/alertNotification";
 
+const channel = createChannel();
 
 export default function useAuth() {
+    // create a new user service instance
+    const service = new userService(channel.request);
     const navigate = useNavigate();
     const { setUser } = useContext(UserContext);
 
     //set user in context and push them home
     const setUserContext = (redirectPage) => {
-        axios.get("/api/v1/auth/check-auth")
+        service.checkUserAuth()
             .then(res => {
-                if (res.data.status === "success") {
-                    console.log(res.data)
-                    setUser(res.data.data);
-                    navigate(redirectPage ? redirectPage : '/about');
-                };
+                setUser(res.data.data);
+                navigate(redirectPage ? redirectPage : '/');
             })
-            .catch(() => {
-                Cookies.remove('__session');
-                navigate('/');
-            });
+            .catch((err) => {
+                console.log(err.response.data.message);
+                navigate('/sign-in');
+            })
     };
 
     const registerUser = (values) => {
-        const { firstName, lastName, email, password, passwordAgain } = values;
-        axios.post("/api/v1/auth/register", {
-            firstName,
-            lastName,
-            email,
-            password,
-            passwordAgain
-        })
-            .then((res) => {
-                Cookies.set('__session',
-                    window.btoa(`rT94VTe11Y1aTg8D5UKZ5C9wSa1CVwjp${res.data.token.split('.')[1]}${process.env.REACT_APP_CLIENT_UNIFIER}${Date.now() * 1523654}`),
-                    {
-                        expires: 1,
-                        // httpOnly: process.env.NODE_ENV === "production" ? true : false,
-                        secure: true,
-                        sameSite: 'strict'
-                    });
-                setUserContext();
+        service.registerUser(values)
+            .then(() => {
+                //setUserContext();
+                navigate('/sign-in');
             })
-            .catch((err) => Notification("error", err.response.data.message));
+            .catch((err) => {
+                alertNotification("error", err.response.data.message)
+            });
     };
 
     const loginUser = (values, redirectPage) => {
-        const { email, password } = values;
-        axios.post("/api/v1/auth/login", {
-            email,
-            password
-        })
+        service.loginUser(values)
             .then((res) => {
-                Cookies.set('__session',
-                    window.btoa(`rT94VTe11Y1aTg8D5UKZ5C9wSa1CVwjp${res.data.token.split('.')[1]}${process.env.REACT_APP_CLIENT_UNIFIER}${Date.now() * 1523654}`),
-                    {
-                        expires: 1,
-                        // httpOnly: process.env.NODE_ENV === "production" ? true : false,
-                        secure: true,
-                        sameSite: 'strict'
-                    });
                 setUserContext(redirectPage);
             })
-            .catch((err) => Notification("error", err.response.data.message));
+            .catch((err) => {
+                alertNotification("error", err.response.data.message)
+            });
     };
 
     const logoutUser = () => {
-        axios.get("/api/v1/auth/logout")
+        service.logoutUser()
             .then((res) => {
-                if (res.data.status === "success") {
-                    setUser(null);
-                    Cookies.remove('__session');
-                    Notification("success", "Logged out successfully");
-                };
+                setUser(null);
+                alertNotification("success", "Logged out successfully");
             })
-            .catch((err) => Notification("error", err.response.data.message));
+            .catch((err) => {
+                alertNotification("error", err.response.data.message)
+            });
     };
     return {
         registerUser,

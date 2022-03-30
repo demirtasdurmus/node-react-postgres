@@ -64,7 +64,6 @@ export default function SignIn(props) {
 
           <button
             type="primary"
-            htmlType="submit"
             className={styles.loginFormButton}>
             SIGN IN
           </button>

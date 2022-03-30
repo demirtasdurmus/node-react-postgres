@@ -88,7 +88,6 @@ export default function SignIn() {
 
           <button
             type="primary"
-            htmlType="submit"
             className={styles.loginFormButton}>
             SIGN UP
           </button>

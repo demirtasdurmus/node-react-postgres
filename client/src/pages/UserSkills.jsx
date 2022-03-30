@@ -3,7 +3,7 @@ import axios from 'axios';
 import { Row, Col } from 'antd';
 import SkillAdd from "../components/skills/SkillAdd";
 import SkillList from "../components/skills/SkillList";
-import Notification from "../utils/Notification";
+import alertNotification from "../utils/alertNotification";
 
 
 export default function UserSkills() {
@@ -16,7 +16,7 @@ export default function UserSkills() {
             .then((res) => {
                 setUserSkills(res.data.data)
             })
-            .catch((err) => Notification("error", err.response.data.message))
+            .catch((err) => alertNotification("error", err.response.data.message))
     };
 
     //  lifecycle

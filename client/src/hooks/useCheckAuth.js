@@ -1,22 +1,25 @@
 import { useState, useEffect } from 'react';
-import axios from 'axios';
-import Cookies from 'js-cookie';
-// import { useNavigate } from 'react-router-dom';
+import createChannel from '../utils/createChannel';
+import userService from '../services/userService';
 
+const channel = createChannel();
 
 export default function useCheckAuth() {
-    // const navigate = useNavigate();
+    // create a new user service instance
+    const service = new userService(channel.request);
 
+    // state declaration
     const [user, setUser] = useState(null);
     const [isLoading, setLoading] = useState(true);
 
+    // get user's auth status
     const checkAuth = () => {
-        axios.get("/api/v1/auth/check-auth")
+        service.checkUserAuth()
             .then(res => {
-                if (res.data.status === "success") setUser(res.data.data);
+                setUser(res.data.data);
             })
-            .catch(() => {
-                Cookies.remove('__session');
+            .catch((err) => {
+                console.log(err.response.data.message);
                 // window.location.replace("/")
             })
             .finally(() => {
@@ -24,9 +27,14 @@ export default function useCheckAuth() {
             })
     };
 
+    //  lifecycle
     useEffect(() => {
         checkAuth();
+        return () => {
+            channel.controller.abort();
+        }
     }, []);
+
     return {
         user,
         setUser,

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import SkillUpdate from "./SkillUpdate";
 import { Table, Tag, Space, Button, Modal } from 'antd';
-import Notification from "../../utils/Notification";
+import alertNotification from "../../utils/alertNotification";
 
 
 export default function SkillList(props) {
@@ -39,10 +39,10 @@ export default function SkillList(props) {
             .then((res) => {
                 if (res.data.status === "success") {
                     getUserSkills();
-                    Notification('success', "Deleted your skill successfully");
+                    alertNotification('success', "Deleted your skill successfully");
                 }
             })
-            .catch((err) => Notification('error', err.response.data.message))
+            .catch((err) => alertNotification('error', err.response.data.message))
     };
 
     const columns = [

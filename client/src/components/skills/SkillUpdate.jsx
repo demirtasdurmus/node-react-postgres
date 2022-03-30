@@ -8,7 +8,7 @@ import {
     Space,
     Select,
 } from 'antd';
-import Notification from "../../utils/Notification";
+import alertNotification from "../../utils/alertNotification";
 
 
 export default function SkillUpdate(props) {
@@ -44,10 +44,10 @@ export default function SkillUpdate(props) {
                 if (res.data.status === "success") {
                     getUserSkills();
                     toggleModal();
-                    Notification('success', "Updated your skill successfully");
+                    alertNotification('success', "Updated your skill successfully");
                 };
             })
-            .catch((err) => Notification('error', err.response.data.message))
+            .catch((err) => alertNotification('error', err.response.data.message))
     };
 
     // get a skill by id to update
@@ -146,7 +146,7 @@ export default function SkillUpdate(props) {
                                 </div>
                             </Option>
                         </Select>
-                        <Button type="primary" htmlType="submit" shape="round">
+                        <Button type="primary" shape="round">
                             Update
                         </Button>
                     </Space>
