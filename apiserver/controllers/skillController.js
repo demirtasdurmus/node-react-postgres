@@ -5,9 +5,8 @@ const { UserInfo, Skill, LocationOption } = require('../models/index');
 
 exports.getSkillsByUserId = catchAsync(async (req, res, next) => {
     // extract userId either from the session or from decoded jasonwebtoken
-    let userId = 1;
     const skills = await Skill.findAll({
-        where: { userInfoId: userId },
+        where: { userInfoId: req.currentUser.id },
         include: [
             {
                 model: UserInfo,
@@ -42,7 +41,7 @@ exports.getSkillById = catchAsync(async (req, res, next) => {
 
 exports.createSkill = catchAsync(async (req, res, next) => {
     // extract userId either from the session of from decoded jasonwebtoken
-    let userId = 1;
+    let userId = req.currentUser.id;
     const { category, tagLine, travelFee, locationOptions } = req.body;
     if (travelFee && locationOptions.indexOf("choose") < 0) {
         return next(new AppError(400, "You can specify travel fee only if choose method is included in location options"));
@@ -68,7 +67,7 @@ exports.createSkill = catchAsync(async (req, res, next) => {
 
 exports.updateSkillById = catchAsync(async (req, res, next) => {
     // extract userId either from the session of from decoded jasonwebtoken
-    let userId = 1;
+    let userId = req.currentUser.id;
     const { category, tagLine, travelFee, locationOptions } = req.body;
     const { id } = req.params;
     // check if the user is the owner
@@ -126,7 +125,7 @@ exports.updateSkillById = catchAsync(async (req, res, next) => {
 
 exports.deleteSkillById = catchAsync(async (req, res, next) => {
     // extract userId either from the session of from decoded jasonwebtoken
-    let userId = 1;
+    let userId = req.currentUser.id;
     const { id } = req.params;
     const skill = await Skill.findByPk(id);
     // check if the user is the owner

@@ -28,7 +28,7 @@ module.exports = catchAsync(async (req, res, next) => {
                         res.clearCookie("__session");
                         return next(new AppError(401, 'User not found!'));
                     };
-                    req.currentUser = currentUser;
+                    req.currentUser = currentUser.dataValues;
                     return next();
                 })
                 .catch((err) => {
