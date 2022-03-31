@@ -113,7 +113,7 @@ export default function SkillList(props) {
                         <Button type="primary" shape="round" size="small" id={skill.id} onClick={(e) => handleUpdateModal(e.target)}>
                             Update
                         </Button>
-                        <Button type="danger" shape="round" size="small" id={skill.id} onClick={(e) => handleDeleteSkill(e.target)}>
+                        <Button type="danger" htmlType='submit' shape="round" size="small" id={skill.id} onClick={(e) => handleDeleteSkill(e.target)}>
                             Delete
                         </Button>
                     </Space>

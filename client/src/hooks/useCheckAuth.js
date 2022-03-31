@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import createChannel from '../utils/createChannel';
-import userService from '../services/userService';
+import authService from '../services/authService';
 
 const channel = createChannel();
 
 export default function useCheckAuth() {
     // create a new user service instance
-    const service = new userService(channel.request);
+    const service = new authService(channel.request);
 
     // state declaration
     const [user, setUser] = useState(null);

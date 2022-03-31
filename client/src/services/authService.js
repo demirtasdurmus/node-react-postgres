@@ -1,16 +1,16 @@
-export default class UserService {
+export default class AuthService {
     constructor(request) {
         this.request = request;
     };
 
-    // get user's skills
-    getUserSkills() {
-        return this.request.get("/api/v1/skills");
+    // register user
+    registerUser(values) {
+        return this.request.post("/api/v1/auth/register", values);
     };
 
-    // add user's skills
-    addUserSkill(payload) {
-        return this.request.post("/api/v1/skills", payload);
+    // login user
+    loginUser(values) {
+        return this.request.post("/api/v1/auth/login", values);
     };
 
     // check user's auth status

@@ -146,7 +146,7 @@ export default function SkillUpdate(props) {
                                 </div>
                             </Option>
                         </Select>
-                        <Button type="primary" shape="round">
+                        <Button htmlType='submit' type="primary" shape="round">
                             Update
                         </Button>
                     </Space>

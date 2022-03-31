@@ -67,7 +67,7 @@ exports.login = catchAsync(async (req, res, next) => {
 
     const cookieExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-    res.cookie("Tj0yWls", encryptedToken, {
+    res.cookie("__session", encryptedToken, {
         expires: cookieExpiry,
         //httpOnly: true,
         //secure: true,
@@ -85,30 +85,47 @@ exports.login = catchAsync(async (req, res, next) => {
 
 // check auth status
 exports.checkAuth = catchAsync(async (req, res, next) => {
-    const { Tj0yWls } = req.cookies;
-    let currentUser;
-    if (Tj0yWls) {
-        // validate token to extract user data
-        const token = Buffer.from(Tj0yWls, 'base64').toString('ascii');
-        const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-        currentUser = await UserInfo.findOne({ where: { id: decoded.id }, attributes: ["id", "first_name", "last_name"] });
-        if (currentUser) {
-            res.status(200).send({
-                status: "success",
-                data: currentUser
-            });
-        } else {
-            res.clearCookie("Tj0yWls");
-            return next(new AppError(401, 'Unauthorized'));
-        }
+    const { __session } = req.cookies;
+    if (__session) {
+        // decode jwt token from cookie session and verify
+        const token = Buffer.from(__session, 'base64').toString('ascii');
+        jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+            if (err) {
+                // send errors accordingly
+                res.clearCookie("__session");
+                if (err.name === 'TokenExpiredError') {
+                    return next(new AppError(401, "Session expired!"));
+                }
+                return next(new AppError(401, "Invalid session!"));
+            };
+            // get user info from the db and send it to the client
+            UserInfo.findOne({
+                where: { id: decoded.id },
+                attributes: ["id", "first_name", "last_name"]
+            })
+                .then((currentUser) => {
+                    if (!currentUser) {
+                        res.clearCookie("__session");
+                        return next(new AppError(401, 'User not found!'));
+                    };
+                    return res.status(200).send({
+                        status: "success",
+                        data: currentUser
+                    });
+                })
+                .catch((err) => {
+                    res.clearCookie("__session");
+                    return next(new AppError(401, 'Unauthorized'));
+                });
+        });
     } else {
-        res.clearCookie("Tj0yWls");
+        res.clearCookie("__session");
         return next(new AppError(401, 'Unauthorized'));
     };
 });
 
 // logout user
 exports.logout = catchAsync(async (req, res, next) => {
-    res.clearCookie("Tj0yWls");
+    res.clearCookie("__session");
     res.status(200).json({ status: 'success' });
 });

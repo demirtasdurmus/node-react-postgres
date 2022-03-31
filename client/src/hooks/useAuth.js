@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import createChannel from '../utils/createChannel';
-import userService from '../services/userService';
+import authService from '../services/authService';
 import { UserContext } from '../context/UserContext';
 import alertNotification from "../utils/alertNotification";
 
@@ -9,7 +9,7 @@ const channel = createChannel();
 
 export default function useAuth() {
     // create a new user service instance
-    const service = new userService(channel.request);
+    const service = new authService(channel.request);
     const navigate = useNavigate();
     const { setUser } = useContext(UserContext);
 

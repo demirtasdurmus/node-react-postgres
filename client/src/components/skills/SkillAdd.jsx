@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import {
     Form,
     Input,
@@ -8,10 +7,14 @@ import {
     Space,
     Select,
 } from 'antd';
+import userService from '../../services/userService';
 import alertNotification from "../../utils/alertNotification";
 
 
 export default function SkillAdd(props) {
+    // create a new user service instance
+    const service = new userService(props.channel.request);
+
     const { Option } = Select;
     const { getUserSkills } = props;
 
@@ -33,18 +36,10 @@ export default function SkillAdd(props) {
 
     // create skill
     const handleAddSkill = (e) => {
-        // e.preventDefault();
-        axios.post("/api/v1/skills", {
-            category: inputs.category,
-            tagLine: inputs.tagLine,
-            travelFee: inputs.travelFee,
-            locationOptions: inputs.locationOptions,
-        })
+        service.addUserSkill(inputs)
             .then((res) => {
-                if (res.data.status === "success") {
-                    getUserSkills();
-                    alertNotification('success', "Saved your skill successfully");
-                };
+                getUserSkills();
+                alertNotification('success', "Saved your skill successfully");
             })
             .catch((err) => alertNotification('error', err.response.data.message))
     };
@@ -111,7 +106,7 @@ export default function SkillAdd(props) {
                             online
                         </Option>
                     </Select>
-                    <Button type="primary" shape="round" style={{ width: "100%" }}>
+                    <Button type="primary" htmlType='submit' shape="round" style={{ width: "100%" }}>
                         Submit
                     </Button>
                 </Space>
