@@ -1,10 +1,10 @@
 const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
-const { promisify } = require('util');
 const catchAsync = require('../utils/catchAsync');
-const signJwtToken = require('../helpers/signJwtToken');
+const signJwtToken = require('../services/signJwtToken');
 const { UserInfo } = require('../models/index');
 const AppError = require("../utils/AppError");
+const cookies = require("../services/cookies");
 
 
 // register the new user
@@ -63,11 +63,12 @@ exports.login = catchAsync(async (req, res, next) => {
     // sign and send token in cookie if everything is ok
     // encyript jwt token and set it for the cookie
     const token = signJwtToken(user.id);
-    const encryptedToken = Buffer.from(token).toString('base64');
+    console.log("first", token);
+    const sessionCookie = cookies.encyript(token);
 
     const cookieExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-    res.cookie("__session", encryptedToken, {
+    res.cookie("__session", sessionCookie, {
         expires: cookieExpiry,
         //httpOnly: true,
         //secure: true,
@@ -78,7 +79,7 @@ exports.login = catchAsync(async (req, res, next) => {
 
     res.status(200).send({
         status: "success",
-        encryptedToken,
+        token,
         data: user
     });
 });
@@ -86,9 +87,10 @@ exports.login = catchAsync(async (req, res, next) => {
 // check auth status
 exports.checkAuth = catchAsync(async (req, res, next) => {
     const { __session } = req.cookies;
-    if (__session) {
+    if (__session && __session.length > 42) {
         // decode jwt token from cookie session and verify
-        const token = Buffer.from(__session, 'base64').toString('ascii');
+        const token = cookies.decyript(__session);
+        console.log("second", token);
         jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
             if (err) {
                 // send errors accordingly

@@ -2,13 +2,14 @@ const jwt = require('jsonwebtoken');
 const { UserInfo } = require('../models/index');
 const AppError = require('../utils/AppError');
 const catchAsync = require('../utils/catchAsync');
+const cookies = require("../services/cookies");
 
 
 module.exports = catchAsync(async (req, res, next) => {
     const { __session } = req.cookies;
-    if (__session) {
+    if (__session && __session.length > 42) {
         // decode jwt token from cookie session and verify
-        const token = Buffer.from(__session, 'base64').toString('ascii');
+        const token = cookies.decyript(__session);
         jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
             if (err) {
                 // send errors accordingly
