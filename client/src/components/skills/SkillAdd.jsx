@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
     Form,
     Input,
@@ -14,6 +15,7 @@ import alertNotification from "../../utils/alertNotification";
 export default function SkillAdd(props) {
     // create a new user service instance
     const service = new userService(props.channel.request);
+    const navigate = useNavigate();
 
     const { Option } = Select;
     const { getUserSkills } = props;
@@ -41,7 +43,12 @@ export default function SkillAdd(props) {
                 getUserSkills();
                 alertNotification('success', "Saved your skill successfully");
             })
-            .catch((err) => alertNotification('error', err.response.data.message))
+            .catch((err) => {
+                if (err.response.status === 401) {
+                    return navigate('/sign-in');
+                };
+                alertNotification('error', err.response.data.message)
+            })
     };
 
     return (

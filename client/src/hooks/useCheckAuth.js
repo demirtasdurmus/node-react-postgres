@@ -19,8 +19,8 @@ export default function useCheckAuth() {
                 setUser(res.data.data);
             })
             .catch((err) => {
-                console.log(err.response.data.message);
-                // window.location.replace("/")
+                console.log("check auth", err.response.data.message);
+                setUser(null);
             })
             .finally(() => {
                 setLoading(false);

@@ -18,7 +18,7 @@ export default function useAuth() {
         service.checkUserAuth()
             .then(res => {
                 setUser(res.data.data);
-                navigate(redirectPage ? redirectPage : '/');
+                navigate(redirectPage ? redirectPage : '/skills');
             })
             .catch((err) => {
                 console.log(err.response.data.message);
@@ -29,7 +29,6 @@ export default function useAuth() {
     const registerUser = (values) => {
         service.registerUser(values)
             .then(() => {
-                //setUserContext();
                 navigate('/sign-in');
             })
             .catch((err) => {
