@@ -15,10 +15,10 @@ exports.encyript = (token) => {
     const configuredMiddle = encryptedMiddle.slice(0, encryptedMiddle.length - 2); // 54 chars long
 
     // create seesion cookie
-    const session = `${configuredPrefix}${encryptedToken.slice(0, 15)}${configuredMiddle}${encryptedToken.slice(15, (encryptedToken.length - 1))}`;
+    const cookie = `${configuredPrefix}${encryptedToken.slice(0, 15)}${configuredMiddle}${encryptedToken.slice(15, (encryptedToken.length - 1))}`;
 
     // return the session cookie
-    return session;
+    return cookie;
 };
 
 exports.decyript = (cookie) => {

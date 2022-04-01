@@ -61,26 +61,26 @@ exports.login = catchAsync(async (req, res, next) => {
     };
 
     // sign and send token in cookie if everything is ok
-    // encyript jwt token and set it for the cookie
     const token = signJwtToken(user.id);
-    console.log("first", token);
+
+    // encyript jwt token and set it for the cookie
     const sessionCookie = cookies.encyript(token);
 
+    // create a cookie expiry date
     const cookieExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
+    // assign the cookie to the response
     res.cookie("__session", sessionCookie, {
         expires: cookieExpiry,
         //httpOnly: true,
         //secure: true,
         //sameSite: "strict"
     });
-    // set user password ro undefined for security
-    user.password = undefined;
 
+    // send a success message to the client
     res.status(200).send({
         status: "success",
-        token,
-        data: user
+        data: ""
     });
 });
 
@@ -88,18 +88,21 @@ exports.login = catchAsync(async (req, res, next) => {
 exports.checkAuth = catchAsync(async (req, res, next) => {
     const { __session } = req.cookies;
     if (__session && __session.length > 42) {
+
         // decode jwt token from cookie session and verify
         const token = cookies.decyript(__session);
-        console.log("second", token);
+
+        // verify decyripted token
         jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
             if (err) {
-                // send errors accordingly
+                // clear cookie and send errors accordingly
                 res.clearCookie("__session");
                 if (err.name === 'TokenExpiredError') {
                     return next(new AppError(401, "Session expired!"));
-                }
+                };
                 return next(new AppError(401, "Invalid session!"));
             };
+
             // get user info from the db and send it to the client
             UserInfo.findOne({
                 where: { id: decoded.id },
@@ -116,11 +119,13 @@ exports.checkAuth = catchAsync(async (req, res, next) => {
                     });
                 })
                 .catch((err) => {
+                    // clear cookie and throw an internal server error
                     res.clearCookie("__session");
-                    return next(new AppError(401, 'Unauthorized'));
+                    return next(new AppError(500, err.message, err.name, false, err.stack));
                 });
         });
     } else {
+        // clear cookie and send errors accordingly
         res.clearCookie("__session");
         return next(new AppError(401, 'Unauthorized'));
     };
