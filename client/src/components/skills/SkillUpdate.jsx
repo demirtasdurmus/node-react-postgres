@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import {
     Form,
     Input,
@@ -8,12 +7,18 @@ import {
     Space,
     Select,
 } from 'antd';
+import userService from '../../services/userService';
 import alertNotification from "../../utils/alertNotification";
+import useErrorHandler from '../../hooks/useErrorHandler';
 
 
 export default function SkillUpdate(props) {
     const { Option } = Select;
     const { getUserSkills, toggleModal, skillId } = props;
+
+    // create a new user service instance
+    const service = new userService(props.channel.request);
+    const { setError } = useErrorHandler();
 
     const [inputs, setInputs] = useState({
         id: null,
@@ -34,12 +39,7 @@ export default function SkillUpdate(props) {
 
     // update a skill
     const handleUpdateSkill = () => {
-        axios.put(`/api/v1/skills/${inputs.id}`, {
-            category: inputs.category,
-            tagLine: inputs.tagLine,
-            travelFee: inputs.travelFee,
-            locationOptions: inputs.locationOptions,
-        })
+        service.updateUserSkill(inputs)
             .then((res) => {
                 if (res.data.status === "success") {
                     getUserSkills();
@@ -47,12 +47,14 @@ export default function SkillUpdate(props) {
                     alertNotification('success', "Updated your skill successfully");
                 };
             })
-            .catch((err) => alertNotification('error', err.response.data.message))
+            .catch((err) => {
+                setError(err);
+            })
     };
 
     // get a skill by id to update
     const getSkillById = (id) => {
-        axios.get(`/api/v1/skills/${id}`)
+        service.getUserSkillById(id)
             .then((res) => {
                 setInputs({
                     id: res.data.data.id,
@@ -62,7 +64,9 @@ export default function SkillUpdate(props) {
                     locationOptions: res.data.data.location_options.map(e => e.option),
                 })
             })
-            .catch((err) => Notification('error', err.response.data.message))
+            .catch((err) => {
+                setError(err);
+            })
     };
 
     useEffect(() => {

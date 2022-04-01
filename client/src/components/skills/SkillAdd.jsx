@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
     Form,
     Input,
@@ -10,16 +9,18 @@ import {
 } from 'antd';
 import userService from '../../services/userService';
 import alertNotification from "../../utils/alertNotification";
+import useErrorHandler from '../../hooks/useErrorHandler';
 
 
 export default function SkillAdd(props) {
-    // create a new user service instance
-    const service = new userService(props.channel.request);
-    const navigate = useNavigate();
-
     const { Option } = Select;
     const { getUserSkills } = props;
 
+    // create a new user service instance
+    const service = new userService(props.channel.request);
+    const { setError } = useErrorHandler();
+
+    // state declaration
     const [inputs, setInputs] = useState({
         category: "",
         locationOptions: [],
@@ -44,10 +45,7 @@ export default function SkillAdd(props) {
                 alertNotification('success', "Saved your skill successfully");
             })
             .catch((err) => {
-                if (err.response.status === 401) {
-                    return navigate('/sign-in');
-                };
-                alertNotification('error', err.response.data.message)
+                setError(err);
             })
     };
 

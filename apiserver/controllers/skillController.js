@@ -19,7 +19,6 @@ exports.getSkillsByUserId = catchAsync(async (req, res, next) => {
             },
         ],
         attributes: ["id", "category", "tag_line", "travel_fee"]
-
     })
     res.status(200).send({ status: "success", data: skills })
 });

@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import SkillUpdate from "./SkillUpdate";
 import { Table, Tag, Space, Button, Modal } from 'antd';
+import userService from '../../services/userService';
 import alertNotification from "../../utils/alertNotification";
+import useErrorHandler from '../../hooks/useErrorHandler';
 
 
 export default function SkillList(props) {
     const { userSkills, getUserSkills } = props;
+
+    // create a new user service instance
+    const service = new userService(props.channel.request);
+    const { setError } = useErrorHandler();
 
     // state declaration
     const [isModalVisible, setIsModalVisible] = useState(false);
@@ -35,14 +40,16 @@ export default function SkillList(props) {
         } else {
             id = target.parentElement.id;
         };
-        axios.delete(`/api/v1/skills/${id}`)
+        service.deleteUserSkill(id)
             .then((res) => {
                 if (res.data.status === "success") {
                     getUserSkills();
                     alertNotification('success', "Deleted your skill successfully");
                 }
             })
-            .catch((err) => alertNotification('error', err.response.data.message))
+            .catch((err) => {
+                setError(err);
+            })
     };
 
     const columns = [
@@ -131,6 +138,7 @@ export default function SkillList(props) {
             />
             <Modal visible={isModalVisible} footer={null} destroyOnClose={true} onCancel={toggleModal}>
                 <SkillUpdate
+                    channel={props.channel}
                     skillId={skillId}
                     getUserSkills={getUserSkills}
                     toggleModal={toggleModal}
