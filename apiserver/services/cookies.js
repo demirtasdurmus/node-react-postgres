@@ -15,7 +15,7 @@ exports.encyript = (token) => {
     const configuredMiddle = encryptedMiddle.slice(0, encryptedMiddle.length - 2); // 54 chars long
 
     // create seesion cookie
-    const cookie = `${configuredPrefix}${encryptedToken.slice(0, 15)}${configuredMiddle}${encryptedToken.slice(15, (encryptedToken.length - 1))}`;
+    const cookie = `${configuredPrefix}${encryptedToken.slice(0, 15)}${configuredMiddle}${encryptedToken.slice(15, encryptedToken.length)}`;
 
     // return the session cookie
     return cookie;
@@ -24,7 +24,7 @@ exports.encyript = (token) => {
 exports.decyript = (cookie) => {
     // extract encrypted token from the cookie
     const unprefixedCookie = cookie.slice(27, cookie.length);
-    const sanitizedCookie = unprefixedCookie.slice(0, 15) + unprefixedCookie.slice(69, unprefixedCookie.length) + "=";
+    const sanitizedCookie = unprefixedCookie.slice(0, 15) + unprefixedCookie.slice(69, unprefixedCookie.length);
 
     // decrypt the token to ascii
     const token = Buffer.from(sanitizedCookie, 'base64').toString('ascii');
