@@ -6,8 +6,6 @@ const skillRoutes = require("./routes/skillRoutes");
 
 
 api.use('/auth', authRoutes);
-
-
 api.use('/users', userRoutes);
 api.use('/skills', isLoggedIn, skillRoutes);
 
