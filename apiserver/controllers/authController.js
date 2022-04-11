@@ -1,10 +1,11 @@
 const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
-const catchAsync = require('../utils/catchAsync');
-const signJwtToken = require('../services/signJwtToken');
-const { UserInfo } = require('../models/index');
 const AppError = require("../utils/AppError");
+const catchAsync = require('../utils/catchAsync');
 const cookies = require("../services/cookies");
+const jwToken = require('../services/jwToken');
+const setBaseUrl = require("../utils/setBaseUrl");
+const { UserInfo, Role } = require('../models/index');
 
 
 // register the new user
@@ -31,12 +32,52 @@ exports.register = catchAsync(async (req, res, next) => {
         first_name: firstName,
         last_name: lastName,
         email: email,
-        password: bcrypt.hashSync(password, 8),
+        roleId: 1,
+        password: password,
+        is_verified: false,
     });
     res.status(201).send({
         status: "success",
         data: { id: newUser.id, email: newUser.email }
     });
+});
+
+// verify the new user
+exports.verify = catchAsync(async (req, res, next) => {
+    const { token } = req.params;
+
+    // verify token & extract user data
+    const decoded = await jwToken.verify(token);
+    // fetch user from db
+    const user = await UserInfo.findOne({
+        where: {
+            id: decoded.id
+        },
+        attributes: ["id", "is_verified"],
+        include: [Role]
+    });
+
+    // update user data
+    if (user && user.verify !== true) {
+        user.is_verified = true;
+        await user.save();
+
+        // sign a session token and embed it in the cookie
+        const token = jwToken.sign({ id: user.id, role: user.role.code });
+        const sessionCookie = cookies.encyript(token);
+
+        // create a cookie expiry date
+        const cookieExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+        // assign the cookie to the response
+        res.cookie("__session", sessionCookie, {
+            expires: cookieExpiry,
+            httpOnly: process.env.NODE_ENV === "development" ? false : true,
+            secure: process.env.NODE_ENV === "development" ? false : true,
+            //sameSite: "strict"
+        });
+    };
+    res.redirect(`${setBaseUrl()}`);
 });
 
 // login user

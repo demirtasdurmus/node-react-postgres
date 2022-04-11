@@ -1,10 +1,14 @@
 "use strict";
-
+const bcrypt = require("bcryptjs");
 const Sequelize = require("sequelize");
 const { sampledb } = require("./db");
+const AppError = require("../utils/appError");
+const jwToken = require("../services/jwToken");
+const sendEmail = require("../services/sendEmail");
+const setBaseUrl = require("../utils/setBaseUrl");
 
 
-module.exports = sampledb.define(
+const UserInfo = sampledb.define(
     "user_info",
     {
         first_name: {
@@ -23,5 +27,39 @@ module.exports = sampledb.define(
             type: Sequelize.TEXT,
             allowNull: false,
         },
+        is_verified: {
+            type: Sequelize.BOOLEAN,
+            allowNull: false,
+        },
+        profile_img: {
+            type: Sequelize.TEXT,
+            allowNull: true,
+        },
+        refresh_token: {
+            type: Sequelize.TEXT,
+            allowNull: true,
+        }
     }
 );
+
+UserInfo.beforeCreate((user) => {
+    try {
+        user.password = bcrypt.hashSync(user.password, Number(process.env.PASSWORD_HASH_CYCLE))
+    } catch (err) {
+        throw new AppError(500, err.message, err.name, false, err.stack);
+    }
+});
+
+UserInfo.afterCreate(async (user) => {
+    try {
+        const token = jwToken.sign({ id: user.id });
+        const verificationUrl = `${setBaseUrl()}/api/v1/auth/verify/${token}`;
+        const name = user.first_name;
+        const email = user.email;
+        await sendEmail(email, { "name": name, "verificationUrl": verificationUrl }, process.env.SENDGRID_VERIFICATION_TEMPLATE_ID);
+    } catch (err) {
+        throw new AppError(500, err.message, err.name, false, err.stack);
+    }
+});
+
+module.exports = UserInfo;
