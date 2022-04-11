@@ -28,8 +28,8 @@ export default function useAuth() {
 
     const registerUser = (values) => {
         service.registerUser(values)
-            .then(() => {
-                navigate('/sign-in');
+            .then((res) => {
+                alertNotification("success", res.data.message)
             })
             .catch((err) => {
                 alertNotification("error", err.response.data.message)

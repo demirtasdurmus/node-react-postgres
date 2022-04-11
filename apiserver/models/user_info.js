@@ -42,6 +42,7 @@ const UserInfo = sampledb.define(
     }
 );
 
+// hash password before creating a new user
 UserInfo.beforeCreate((user) => {
     try {
         user.password = bcrypt.hashSync(user.password, Number(process.env.PASSWORD_HASH_CYCLE))
@@ -50,6 +51,7 @@ UserInfo.beforeCreate((user) => {
     }
 });
 
+// send a verification email after creating a new user
 UserInfo.afterCreate(async (user) => {
     try {
         const token = jwToken.sign({ id: user.id });
