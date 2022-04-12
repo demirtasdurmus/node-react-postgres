@@ -30,6 +30,7 @@ export default function useCheckAuth() {
     //  lifecycle
     useEffect(() => {
         checkAuth();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     return { user, setUser, isLoading }
