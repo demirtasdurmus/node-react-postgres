@@ -39,6 +39,7 @@ export default function useAuth() {
     const loginUser = (values, redirectPage) => {
         service.loginUser(values)
             .then((res) => {
+                localStorage.setItem('r-token', res.data.data.token);
                 setUserContext(redirectPage);
                 alertNotification("success", "Logged in successfully");
             })
@@ -51,6 +52,7 @@ export default function useAuth() {
         service.logoutUser()
             .then((res) => {
                 setUser(null);
+                localStorage.removeItem('r-token');
                 alertNotification("success", "Logged out successfully");
             })
             .catch((err) => {

@@ -47,7 +47,7 @@ exports.verify = catchAsync(async (req, res, next) => {
     const { token } = req.params;
 
     // verify token & extract user data
-    const decoded = await jwToken.verify(token);
+    const decoded = await jwToken.verify(token, process.env.JWT_VERIFY_SECRET);
     // fetch user from db
     const user = await UserInfo.findOne({
         where: {
@@ -63,7 +63,13 @@ exports.verify = catchAsync(async (req, res, next) => {
         await user.save();
 
         // sign a session token and embed it in the cookie
-        const token = jwToken.sign({ id: user.id, role: user.role.code });
+        const token = jwToken.sign(
+            {
+                id: user.id,
+                role: user.role.code
+            },
+            process.env.JWT_SESSION_SECRET,
+            process.env.JWT_SESSION_EXPIRY);
         const sessionCookie = cookies.encyript(token);
 
         // create a cookie expiry date
@@ -90,7 +96,11 @@ exports.login = catchAsync(async (req, res, next) => {
     };
 
     // check if user exists
-    const user = await UserInfo.findOne({ where: { email }, attributes: ["id", "password"] });
+    const user = await UserInfo.findOne({
+        where: { email },
+        attributes: ["id", "password"],
+        include: [Role]
+    });
     if (!user) {
         return next(new AppError(400, "Incorrect email or password!"));
     };
@@ -101,10 +111,15 @@ exports.login = catchAsync(async (req, res, next) => {
         return next(new AppError(400, "Incorrect email or password!"));
     };
 
-    // sign and send token in cookie if everything is ok
-    const token = signJwtToken(user.id);
-
-    // encyript jwt token and set it for the cookie
+    // sign a session token and embed it in the cookie
+    const token = jwToken.sign(
+        {
+            id: user.id,
+            role: user.role.code
+        },
+        process.env.JWT_SESSION_SECRET,
+        process.env.JWT_SESSION_EXPIRY
+    );
     const sessionCookie = cookies.encyript(token);
 
     // create a cookie expiry date
@@ -113,15 +128,27 @@ exports.login = catchAsync(async (req, res, next) => {
     // assign the cookie to the response
     res.cookie("__session", sessionCookie, {
         expires: cookieExpiry,
-        //httpOnly: true,
-        //secure: true,
+        httpOnly: process.env.NODE_ENV === "development" ? false : true,
+        secure: process.env.NODE_ENV === "development" ? false : true,
         //sameSite: "strict"
     });
+
+    // sign a refresh token and embed it in the cookie
+    const refreshToken = jwToken.sign(
+        {
+            id: user.id,
+            role: user.role.code,
+            remember: remember
+        },
+        process.env.JWT_REFRESH_SECRET,
+        process.env.JWT_REFRESH_EXPIRY
+    );
+    const refreshCookie = cookies.encyript(refreshToken);
 
     // send a success message to the client
     res.status(200).send({
         status: "success",
-        data: ""
+        data: { token: refreshCookie }
     });
 });
 
@@ -134,7 +161,7 @@ exports.checkAuth = catchAsync(async (req, res, next) => {
         const token = cookies.decyript(__session);
 
         // verify decyripted token
-        jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        jwt.verify(token, process.env.JWT_SESSION_SECRET, (err, decoded) => {
             if (err) {
                 // clear cookie and send errors accordingly
                 res.clearCookie("__session");

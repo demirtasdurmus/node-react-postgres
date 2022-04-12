@@ -54,7 +54,7 @@ UserInfo.beforeCreate((user) => {
 // send a verification email after creating a new user
 UserInfo.afterCreate(async (user) => {
     try {
-        const token = jwToken.sign({ id: user.id });
+        const token = jwToken.sign({ id: user.id }, process.env.JWT_VERIFY_SECRET, process.env.JWT_VERIFY_EXPIRY);
         const verificationUrl = `${setBaseUrl()}/api/v1/auth/verify/${token}`;
         const name = user.first_name;
         const email = user.email;

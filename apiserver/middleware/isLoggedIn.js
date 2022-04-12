@@ -10,7 +10,7 @@ module.exports = catchAsync(async (req, res, next) => {
     if (__session && __session.length > 42) {
         // decode jwt token from cookie session and verify
         const token = cookies.decyript(__session);
-        jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        jwt.verify(token, process.env.JWT_SESSION_SECRET, (err, decoded) => {
             if (err) {
                 // send errors accordingly
                 res.clearCookie("__session");

@@ -4,20 +4,20 @@ const AppError = require("../utils/appError");
 
 
 // sign a jwt token
-exports.sign = (data) => {
-    return jwt.sign(data, process.env.JWT_SECRET, {
-        expiresIn: process.env.JWT_EXPIRES_IN
+exports.sign = (data, secret, expiry) => {
+    return jwt.sign(data, secret, {
+        expiresIn: expiry
     });
 };
 
 // verify a jwt token
-exports.verify = async (token) => {
+exports.verify = async (token, secret) => {
     // verify jwt token
     try {
         if (!token || typeof (token) !== 'string') {
             throw new AppError(401, "Invalid session!");
         };
-        const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+        const decoded = await promisify(jwt.verify)(token, secret);
         return decoded;
     } catch (err) {
         // throw send errors accordingly

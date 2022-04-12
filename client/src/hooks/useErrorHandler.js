@@ -11,8 +11,10 @@ export default function useErrorHandler() {
     const handleError = () => {
         if (error.response) {
             if (error.response.status === 401) {
+                localStorage.removeItem('r-token');
                 window.location.assign('/sign-in');
             } else if (error.response.status === 403) {
+                localStorage.removeItem('r-token');
                 window.location.assign('/satin-al');
             } else {
                 alertNotification('error', error.response.data.message)
