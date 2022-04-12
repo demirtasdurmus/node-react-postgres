@@ -138,7 +138,7 @@ export default function SkillList(props) {
             />
             <Modal visible={isModalVisible} footer={null} destroyOnClose={true} onCancel={toggleModal}>
                 <SkillUpdate
-                    channel={props.channel}
+                    apiRequest={props.apiRequest}
                     skillId={skillId}
                     getUserSkills={getUserSkills}
                     toggleModal={toggleModal}

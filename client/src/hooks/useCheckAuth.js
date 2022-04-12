@@ -30,14 +30,7 @@ export default function useCheckAuth() {
     //  lifecycle
     useEffect(() => {
         checkAuth();
-        return () => {
-            channel.controller.abort();
-        }
     }, []);
 
-    return {
-        user,
-        setUser,
-        isLoading
-    }
+    return { user, setUser, isLoading }
 };
