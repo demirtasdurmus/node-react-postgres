@@ -14,10 +14,10 @@ import useErrorHandler from '../../hooks/useErrorHandler';
 
 export default function SkillUpdate(props) {
     const { Option } = Select;
-    const { getUserSkills, toggleModal, skillId } = props;
+    const { apiRequest, getUserSkills, toggleModal, skillId } = props;
 
     // create a new user service instance
-    const service = new userService(props.channel.request);
+    const service = new userService(apiRequest);
     const { setError } = useErrorHandler();
 
     const [inputs, setInputs] = useState({
@@ -70,7 +70,8 @@ export default function SkillUpdate(props) {
     };
 
     useEffect(() => {
-        getSkillById(skillId)
+        getSkillById(skillId);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [skillId])
 
     return (

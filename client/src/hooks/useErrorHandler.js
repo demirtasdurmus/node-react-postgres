@@ -31,6 +31,7 @@ export default function useErrorHandler() {
     //  lifecycle
     useEffect(() => {
         JSON.parse(jsonError) && handleError();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [jsonError]);
 
     return { setError }

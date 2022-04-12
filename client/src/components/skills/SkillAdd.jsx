@@ -14,10 +14,10 @@ import useErrorHandler from '../../hooks/useErrorHandler';
 
 export default function SkillAdd(props) {
     const { Option } = Select;
-    const { getUserSkills } = props;
+    const { apiRequest, getUserSkills } = props;
 
     // create a new user service instance
-    const service = new userService(props.channel.request);
+    const service = new userService(apiRequest);
     const { setError } = useErrorHandler();
 
     // state declaration

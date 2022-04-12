@@ -7,10 +7,10 @@ import useErrorHandler from '../../hooks/useErrorHandler';
 
 
 export default function SkillList(props) {
-    const { userSkills, getUserSkills } = props;
+    const { apiRequest, userSkills, getUserSkills } = props;
 
     // create a new user service instance
-    const service = new userService(props.channel.request);
+    const service = new userService(apiRequest);
     const { setError } = useErrorHandler();
 
     // state declaration
