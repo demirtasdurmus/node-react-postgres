@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Row, Col } from 'antd';
 import createChannel from '../utils/createChannel';
+import useErrorHandler from '../hooks/useErrorHandler';
 import userService from '../services/userService';
 import SkillAdd from "../components/skills/SkillAdd";
 import SkillList from "../components/skills/SkillList";
-import alertNotification from "../utils/alertNotification";
 
 
 export default function UserSkills() {
@@ -13,6 +13,7 @@ export default function UserSkills() {
     const apiRequest = channel.current.request;
     const apiController = channel.current.controller;
     const service = new userService(apiRequest);
+    const { setError } = useErrorHandler();
     let content;
     // state declaration
     const [isLoading, setIsLoading] = useState(true);
@@ -26,7 +27,7 @@ export default function UserSkills() {
                 setUserSkills(res.data.data)
             })
             .catch((err) => {
-                alertNotification("error", err.response.data.message)
+                if (err.response) setError(err);
             })
             .finally(() => {
                 !apiController.signal.aborted && setIsLoading(false);

@@ -48,7 +48,7 @@ export default function SkillList(props) {
                 }
             })
             .catch((err) => {
-                setError(err);
+                if (err.response) setError(err);
             })
     };
 

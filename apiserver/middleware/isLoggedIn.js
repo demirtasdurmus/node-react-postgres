@@ -9,27 +9,29 @@ const jwToken = require('../services/jwToken');
 module.exports = catchAsync(async (req, res, next) => {
     const { __session } = req.cookies;
     if (__session) {
-        // decode jwt token from cookie session and verify
+        // decrypt session token from session cookie
         const sessionToken = cookies.decrypt(__session);
         // verify decrypted session token
-        jwt.verify(sessionToken, process.env.JWT_SESSION_SECRET, (err, decoded) => {
+        jwt.verify(sessionToken, process.env.JWT_SESSION_SECRET, (err, sessionData) => {
             if (err) {
                 // if it is expired, check the refresh token
                 if (err.name === 'TokenExpiredError') {
                     const { authorization } = req.headers;
                     if (authorization && authorization.startsWith("Bearer")) {
-                        // decrypt and verify refresh token
+                        // decrypt refresh token from authorization header
                         const refreshToken = cookies.decrypt(authorization.split(" ")[1]);
-                        jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (error, data) => {
+                        // verify decrypted refresh token
+                        jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (error, refreshData) => {
+                            // send a 401 error if the refresh token is invalid
                             if (error) {
                                 res.clearCookie("__session");
                                 return next(new AppError(401, "Session expired!"));
                             };
-                            // check if remember is true
-                            if (data.remember === true) {
-                                // get user info from the db and send it to the client
+                            // check if client's remember me preference is true
+                            if (refreshData.remember === true) {
+                                // get user info from the db with decoded user id from refresh token
                                 UserInfo.findOne({
-                                    where: { id: data.id },
+                                    where: { id: refreshData.id },
                                     attributes: ["id", "refresh_token"],
                                     include: [Role]
                                 })
@@ -37,13 +39,13 @@ module.exports = catchAsync(async (req, res, next) => {
                                         // if user is not found, send 401 and clear cookie
                                         if (!currentUser) {
                                             res.clearCookie("__session");
-                                            return next(new AppError(401, 'User not found!'));
+                                            return next(new AppError(401, 'Session expired!'));
                                         };
 
                                         // if token is not the same as the one in the db, send 401 and clear cookie
                                         if (currentUser.refresh_token !== authorization.split(" ")[1]) {
                                             res.clearCookie("__session");
-                                            return next(new AppError(401, 'Unathorized'));
+                                            return next(new AppError(401, 'Simultaneous login detected!'));
                                         };
 
                                         // if everything is ok;
@@ -57,11 +59,9 @@ module.exports = catchAsync(async (req, res, next) => {
                                             process.env.JWT_SESSION_EXPIRY
                                         );
                                         const sessionCookie = cookies.encrypt(sessionToken);
-
-                                        // create a cookie expiry date
                                         const sessionExpiry = new Date(Date.now() + 5 * 60 * 1000);
 
-                                        // assign the cookie to the response
+                                        // assign the cookie to the response with appropriate expiry date
                                         res.cookie("__session", sessionCookie, {
                                             expires: sessionExpiry,
                                             httpOnly: process.env.NODE_ENV === "development" ? false : true,
@@ -69,8 +69,8 @@ module.exports = catchAsync(async (req, res, next) => {
                                             //sameSite: "strict"
                                         });
 
-                                        // 2) send the user info to the client
-                                        req.userId = currentUser.id
+                                        // 2) assign the user id to the request object and pass it to the next middleware
+                                        req.userId = currentUser.id;
                                         return next()
                                     })
                                     .catch((err) => {
@@ -79,30 +79,41 @@ module.exports = catchAsync(async (req, res, next) => {
                                         return next(new AppError(500, err.message, err.name, false, err.stack));
                                     });
                             } else {
+                                // if client's remember me preference is false, clear the cookie and send 401
                                 res.clearCookie("__session");
                                 return next(new AppError(401, "Session expired!"));
                             }
                         });
                     } else {
+                        // if there is no appropriate authorization header, clear the cookie and send 401
                         res.clearCookie("__session");
                         return next(new AppError(401, "Session expired!"));
                     }
                 } else {
+                    // if the session token is invalid(except from expiry), clear the cookie and send 401
                     res.clearCookie("__session");
                     return next(new AppError(401, "Invalid session!"));
                 };
             } else {
-                // get user info from the db and send it to the client
+                // get user info from the db with decoded user id from session token
                 UserInfo.findOne({
-                    where: { id: decoded.id },
+                    where: { id: sessionData.id },
                     attributes: ["id"],
                     include: [Role]
                 })
                     .then((currentUser) => {
+                        // if user is not found, send 401 and clear cookie
                         if (!currentUser) {
                             res.clearCookie("__session");
-                            return next(new AppError(401, 'User not found!'));
+                            return next(new AppError(401, 'Inavlid session!'));
                         };
+
+                        // in this part to enhance security
+                        // we can save session token to redis and
+                        // check if the session token is valid in redis
+                        // and check it each time
+
+                        // assign the user id to the request object and pass it to the next middleware
                         req.userId = currentUser.id;
                         return next();
                     })
@@ -114,8 +125,7 @@ module.exports = catchAsync(async (req, res, next) => {
             }
         });
     } else {
-        // clear cookie and send errors accordingly
-        res.clearCookie("__session");
+        // if there is no session cookie, send 401
         return next(new AppError(401, 'Unauthorized'));
     };
 });

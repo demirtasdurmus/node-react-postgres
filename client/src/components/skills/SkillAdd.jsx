@@ -45,7 +45,7 @@ export default function SkillAdd(props) {
                 alertNotification('success', "Saved your skill successfully");
             })
             .catch((err) => {
-                setError(err);
+                if (err.response) setError(err);
             })
     };
 

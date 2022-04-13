@@ -48,7 +48,7 @@ export default function SkillUpdate(props) {
                 };
             })
             .catch((err) => {
-                setError(err);
+                if (err.response) setError(err);
             })
     };
 
@@ -65,7 +65,7 @@ export default function SkillUpdate(props) {
                 })
             })
             .catch((err) => {
-                setError(err);
+                if (err.response) setError(err);
             })
     };
 

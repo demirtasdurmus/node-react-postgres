@@ -9,21 +9,15 @@ export default function useErrorHandler() {
 
     // get user's auth status
     const handleError = () => {
-        if (error.response) {
-            if (error.response.status === 401) {
-                localStorage.removeItem('r-token');
-                window.location.assign('/sign-in');
-            } else if (error.response.status === 403) {
-                localStorage.removeItem('r-token');
-                window.location.assign('/satin-al');
-            } else {
-                alertNotification('error', error.response.data.message)
-            }
+        if (error.response.status === 401) {
+            localStorage.removeItem('r-token');
+            window.location.assign('/sign-in');
+        } else if (error.response.status === 403) {
+            localStorage.removeItem('r-token');
+            window.location.assign('/satin-al');
         } else {
-            // log error to console
-            console.log(error)
+            alertNotification('error', error.response.data.message)
         }
-
     };
 
     const jsonError = JSON.stringify(error);
