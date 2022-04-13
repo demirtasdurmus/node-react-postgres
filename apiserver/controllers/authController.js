@@ -269,7 +269,7 @@ exports.checkAuth = catchAsync(async (req, res, next) => {
                         // if user is not found, send 401 and clear cookie
                         if (!currentUser) {
                             res.clearCookie("__session");
-                            return next(new AppError(401, 'Inavlid session!'));
+                            return next(new AppError(401, 'Invalid session!'));
                         };
 
                         // in this part to enhance security
