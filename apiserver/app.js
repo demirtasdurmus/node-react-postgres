@@ -53,6 +53,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // serving the static files
 app.use(express.static(path.join(__dirname, "../", "client/", "build")));
+app.use(express.static(path.join(__dirname, "images")));
 
 // handling gzip compression
 app.use(compression());

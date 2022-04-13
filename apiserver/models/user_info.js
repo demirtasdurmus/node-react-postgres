@@ -32,7 +32,7 @@ const UserInfo = sampledb.define(
             allowNull: false,
         },
         profile_img: {
-            type: Sequelize.TEXT,
+            type: Sequelize.STRING(150),
             allowNull: true,
         },
         refresh_token: {

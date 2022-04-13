@@ -26,7 +26,7 @@ export default function Header() {
 
             <Col offset={2} span={4} style={{ fontSize: '1.3rem', fontWeight: 'bold', display: 'flex', flexDirection: 'row' }}>
                 {user && user.id ? `${user.firstName} ${user.lastName}` : <Link to="/sign-in">Sign In</Link>}
-                {(user && user.id) && <button onClick={logoutUser} style={{ borderRadius: "20px", border: "none" }}>Logout</button>}
+                {(user && user.id) && <button onClick={logoutUser} style={{ marginLeft: "2rem", borderRadius: "20px", border: "none" }}>Logout</button>}
             </Col>
         </div>
     )

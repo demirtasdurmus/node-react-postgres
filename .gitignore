@@ -2,6 +2,7 @@
 /node_modules
 /apiserver/node_modules
 /apiserver/.config.env
+/apiserver/images
 
 /client/node_modules
 /client/build

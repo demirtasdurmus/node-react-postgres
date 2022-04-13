@@ -4,10 +4,8 @@ const userController = require('./../controllers/userController');
 
 
 router
-    .get("/", userController.getUsers)
     .get("/:id", userController.getUserById)
-    .post("/", userController.createUser)
-    .patch("/:id", userController.updateUserById)
+    .patch("/", userController.uploadImage.single('profileImg'), userController.updateUserById)
     .delete("/:id", userController.deleteUserById)
 
 
