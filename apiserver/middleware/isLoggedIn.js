@@ -59,14 +59,14 @@ module.exports = catchAsync(async (req, res, next) => {
                                             process.env.JWT_SESSION_EXPIRY
                                         );
                                         const sessionCookie = cookies.encrypt(sessionToken);
-                                        const sessionExpiry = new Date(Date.now() + 5 * 60 * 1000);
+                                        const sessionExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
                                         // assign the cookie to the response with appropriate expiry date
                                         res.cookie("__session", sessionCookie, {
                                             expires: sessionExpiry,
-                                            httpOnly: process.env.NODE_ENV === "development" ? false : true,
-                                            secure: process.env.NODE_ENV === "development" ? false : true,
-                                            //sameSite: "strict"
+                                            httpOnly: true,
+                                            secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+                                            sameSite: process.env.NODE_ENV === "development" ? "Lax" : "Strict"
                                         });
 
                                         // 2) assign the user id to the request object and pass it to the next middleware
