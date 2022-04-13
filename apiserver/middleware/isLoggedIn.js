@@ -58,11 +58,11 @@ module.exports = catchAsync(async (req, res, next) => {
                                         const sessionCookie = cookies.encrypt(sessionToken);
 
                                         // create a cookie expiry date
-                                        const cookieExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+                                        const sessionExpiry = new Date(Date.now() + 5 * 60 * 1000);
 
                                         // assign the cookie to the response
                                         res.cookie("__session", sessionCookie, {
-                                            expires: cookieExpiry,
+                                            expires: sessionExpiry,
                                             httpOnly: process.env.NODE_ENV === "development" ? false : true,
                                             secure: process.env.NODE_ENV === "development" ? false : true,
                                             //sameSite: "strict"

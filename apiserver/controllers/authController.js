@@ -117,7 +117,7 @@ exports.login = catchAsync(async (req, res, next) => {
     };
 
     // sign a session token and embed it in the cookie
-    const token = jwToken.sign(
+    const sessionToken = jwToken.sign(
         {
             id: user.id,
             role: user.role.code
@@ -125,14 +125,14 @@ exports.login = catchAsync(async (req, res, next) => {
         process.env.JWT_SESSION_SECRET,
         process.env.JWT_SESSION_EXPIRY
     );
-    const sessionCookie = cookies.encrypt(token);
+    const sessionCookie = cookies.encrypt(sessionToken);
 
     // create a cookie expiry date
-    const cookieExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+    const sessionExpiry = new Date(Date.now() + 5 * 60 * 1000);
 
     // assign the cookie to the response
     res.cookie("__session", sessionCookie, {
-        expires: cookieExpiry,
+        expires: sessionExpiry,
         httpOnly: process.env.NODE_ENV === "development" ? false : true,
         secure: process.env.NODE_ENV === "development" ? false : true,
         //sameSite: "strict"
@@ -168,7 +168,7 @@ exports.checkAuth = catchAsync(async (req, res, next) => {
         // decode jwt token from cookie session and verify
         const sessionToken = cookies.decrypt(__session);
         // verify decrypted session token
-        jwt.verify(sessionToken, process.env.JWT_SESSION_SECRET, (err, decoded) => {
+        jwt.verify(sessionToken, process.env.JWT_SESSION_SECRET, (err, sessionData) => {
             if (err) {
                 // if it is expired, check the refresh token
                 if (err.name === 'TokenExpiredError') {
@@ -176,16 +176,16 @@ exports.checkAuth = catchAsync(async (req, res, next) => {
                     if (authorization && authorization.startsWith("Bearer")) {
                         // decrypt and verify refresh token
                         const refreshToken = cookies.decrypt(authorization.split(" ")[1]);
-                        jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (error, data) => {
+                        jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (error, refreshData) => {
                             if (error) {
                                 res.clearCookie("__session");
                                 return next(new AppError(401, "Session expired!"));
                             };
                             // check if remember is true
-                            if (data.remember === true) {
+                            if (refreshData.remember === true) {
                                 // get user info from the db and send it to the client
                                 UserInfo.findOne({
-                                    where: { id: data.id },
+                                    where: { id: refreshData.id },
                                     attributes: ["id", "first_name", "last_name", "refresh_token"],
                                     include: [Role]
                                 })
@@ -215,11 +215,11 @@ exports.checkAuth = catchAsync(async (req, res, next) => {
                                         const sessionCookie = cookies.encrypt(sessionToken);
 
                                         // create a cookie expiry date
-                                        const cookieExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+                                        const sessionExpiry = new Date(Date.now() + 5 * 60 * 1000);
 
                                         // assign the cookie to the response
                                         res.cookie("__session", sessionCookie, {
-                                            expires: cookieExpiry,
+                                            expires: sessionExpiry,
                                             httpOnly: process.env.NODE_ENV === "development" ? false : true,
                                             secure: process.env.NODE_ENV === "development" ? false : true,
                                             //sameSite: "strict"
@@ -258,7 +258,7 @@ exports.checkAuth = catchAsync(async (req, res, next) => {
             } else {
                 // get user info from the db and send it to the client
                 UserInfo.findOne({
-                    where: { id: decoded.id },
+                    where: { id: sessionData.id },
                     attributes: ["id", "first_name", "last_name"],
                     include: [Role]
                 })
