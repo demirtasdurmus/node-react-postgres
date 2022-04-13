@@ -6,7 +6,7 @@ export default function createChannel() {
     const request = axios.create({
         headers: {
             'Content-Type': 'application/json',
-            'token': `Bearer ${token}`
+            'Authorization': `Bearer ${token}`
         },
         signal: controller.signal,
     });

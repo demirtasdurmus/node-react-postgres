@@ -19,7 +19,8 @@ export default function useCheckAuth() {
                 setUser(res.data.data);
             })
             .catch((err) => {
-                console.log("check auth", err.response.data.message);
+                //console.log("check auth", err.response.data.message);
+                localStorage.removeItem('r-token');
                 setUser(null);
             })
             .finally(() => {

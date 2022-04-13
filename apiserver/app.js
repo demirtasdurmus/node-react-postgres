@@ -25,7 +25,7 @@ app.use((req, res, next) => {
     req.userId = "Guest";
     if (__session) {
         // decode jwt token from cookie session and verify
-        const token = cookies.decyript(__session);
+        const token = cookies.decrypt(__session);
         const payload = jwToken.decode(token);
         if (payload) {
             req.userId = payload.id;

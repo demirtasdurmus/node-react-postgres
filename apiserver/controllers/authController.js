@@ -70,7 +70,7 @@ exports.verify = catchAsync(async (req, res, next) => {
             },
             process.env.JWT_SESSION_SECRET,
             process.env.JWT_SESSION_EXPIRY);
-        const sessionCookie = cookies.encyript(token);
+        const sessionCookie = cookies.encrypt(token);
 
         // create a cookie expiry date
         const cookieExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
@@ -98,7 +98,7 @@ exports.login = catchAsync(async (req, res, next) => {
     // check if user exists
     const user = await UserInfo.findOne({
         where: { email },
-        attributes: ["id", "password"],
+        attributes: ["id", "password", "refresh_token", "is_verified"],
         include: [Role]
     });
     if (!user) {
@@ -111,6 +111,11 @@ exports.login = catchAsync(async (req, res, next) => {
         return next(new AppError(400, "Incorrect email or password!"));
     };
 
+    // check if user is verified
+    if (user.is_verified !== true) {
+        return next(new AppError(400, "Please verify your email first!"));
+    };
+
     // sign a session token and embed it in the cookie
     const token = jwToken.sign(
         {
@@ -120,7 +125,7 @@ exports.login = catchAsync(async (req, res, next) => {
         process.env.JWT_SESSION_SECRET,
         process.env.JWT_SESSION_EXPIRY
     );
-    const sessionCookie = cookies.encyript(token);
+    const sessionCookie = cookies.encrypt(token);
 
     // create a cookie expiry date
     const cookieExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
@@ -133,7 +138,7 @@ exports.login = catchAsync(async (req, res, next) => {
         //sameSite: "strict"
     });
 
-    // sign a refresh token and embed it in the cookie
+    // sign a refresh token and encrypt it
     const refreshToken = jwToken.sign(
         {
             id: user.id,
@@ -143,7 +148,11 @@ exports.login = catchAsync(async (req, res, next) => {
         process.env.JWT_REFRESH_SECRET,
         process.env.JWT_REFRESH_EXPIRY
     );
-    const refreshCookie = cookies.encyript(refreshToken);
+    const refreshCookie = cookies.encrypt(refreshToken);
+
+    // save the refresh token to the db
+    user.refresh_token = refreshCookie;
+    await user.save();
 
     // send a success message to the client
     res.status(200).send({
@@ -155,42 +164,126 @@ exports.login = catchAsync(async (req, res, next) => {
 // check auth status
 exports.checkAuth = catchAsync(async (req, res, next) => {
     const { __session } = req.cookies;
-    if (__session && __session.length > 42) {
-
+    if (__session) {
         // decode jwt token from cookie session and verify
-        const token = cookies.decyript(__session);
-
-        // verify decyripted token
-        jwt.verify(token, process.env.JWT_SESSION_SECRET, (err, decoded) => {
+        const sessionToken = cookies.decrypt(__session);
+        // verify decrypted session token
+        jwt.verify(sessionToken, process.env.JWT_SESSION_SECRET, (err, decoded) => {
             if (err) {
-                // clear cookie and send errors accordingly
-                res.clearCookie("__session");
+                // if it is expired, check the refresh token
                 if (err.name === 'TokenExpiredError') {
-                    return next(new AppError(401, "Session expired!"));
-                };
-                return next(new AppError(401, "Invalid session!"));
-            };
+                    const { authorization } = req.headers;
+                    if (authorization && authorization.startsWith("Bearer")) {
+                        // decrypt and verify refresh token
+                        const refreshToken = cookies.decrypt(authorization.split(" ")[1]);
+                        jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (error, data) => {
+                            if (error) {
+                                res.clearCookie("__session");
+                                return next(new AppError(401, "Session expired!"));
+                            };
+                            // check if remember is true
+                            if (data.remember === true) {
+                                // get user info from the db and send it to the client
+                                UserInfo.findOne({
+                                    where: { id: data.id },
+                                    attributes: ["id", "first_name", "last_name", "refresh_token"],
+                                    include: [Role]
+                                })
+                                    .then((currentUser) => {
+                                        // if user is not found, send 401 and clear cookie
+                                        if (!currentUser) {
+                                            res.clearCookie("__session");
+                                            return next(new AppError(401, 'User not found!'));
+                                        };
 
-            // get user info from the db and send it to the client
-            UserInfo.findOne({
-                where: { id: decoded.id },
-                attributes: ["id", "first_name", "last_name"]
-            })
-                .then((currentUser) => {
-                    if (!currentUser) {
+                                        // if token is not the same as the one in the db, send 401 and clear cookie
+                                        if (currentUser.refresh_token !== authorization.split(" ")[1]) {
+                                            res.clearCookie("__session");
+                                            return next(new AppError(401, 'Unathorized'));
+                                        };
+
+                                        // if everything is ok;
+                                        // 1) sign a new session token and embed it in the cookie
+                                        const sessionToken = jwToken.sign(
+                                            {
+                                                id: currentUser.id,
+                                                role: currentUser.role.code
+                                            },
+                                            process.env.JWT_SESSION_SECRET,
+                                            process.env.JWT_SESSION_EXPIRY
+                                        );
+                                        const sessionCookie = cookies.encrypt(sessionToken);
+
+                                        // create a cookie expiry date
+                                        const cookieExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+                                        // assign the cookie to the response
+                                        res.cookie("__session", sessionCookie, {
+                                            expires: cookieExpiry,
+                                            httpOnly: process.env.NODE_ENV === "development" ? false : true,
+                                            secure: process.env.NODE_ENV === "development" ? false : true,
+                                            //sameSite: "strict"
+                                        });
+
+                                        // 2) send the user info to the client
+                                        const userData = {
+                                            id: currentUser.id,
+                                            firstName: currentUser.first_name,
+                                            lastName: currentUser.last_name,
+                                            role: currentUser.role.code
+                                        };
+                                        return res.status(200).send({
+                                            status: "success",
+                                            data: userData
+                                        });
+                                    })
+                                    .catch((err) => {
+                                        // clear cookie and throw an internal server error
+                                        res.clearCookie("__session");
+                                        return next(new AppError(500, err.message, err.name, false, err.stack));
+                                    });
+                            } else {
+                                res.clearCookie("__session");
+                                return next(new AppError(401, "Session expired!"));
+                            }
+                        });
+                    } else {
                         res.clearCookie("__session");
-                        return next(new AppError(401, 'User not found!'));
-                    };
-                    return res.status(200).send({
-                        status: "success",
-                        data: currentUser
-                    });
-                })
-                .catch((err) => {
-                    // clear cookie and throw an internal server error
+                        return next(new AppError(401, "Session expired!"));
+                    }
+                } else {
                     res.clearCookie("__session");
-                    return next(new AppError(500, err.message, err.name, false, err.stack));
-                });
+                    return next(new AppError(401, "Invalid session!"));
+                };
+            } else {
+                // get user info from the db and send it to the client
+                UserInfo.findOne({
+                    where: { id: decoded.id },
+                    attributes: ["id", "first_name", "last_name"],
+                    include: [Role]
+                })
+                    .then((currentUser) => {
+                        if (!currentUser) {
+                            res.clearCookie("__session");
+                            return next(new AppError(401, 'User not found!'));
+                        };
+                        const userData = {
+                            id: currentUser.id,
+                            firstName: currentUser.first_name,
+                            lastName: currentUser.last_name,
+                            role: currentUser.role.code
+                        };
+                        return res.status(200).send({
+                            status: "success",
+                            data: userData
+                        });
+                    })
+                    .catch((err) => {
+                        // clear cookie and throw an internal server error
+                        res.clearCookie("__session");
+                        return next(new AppError(500, err.message, err.name, false, err.stack));
+                    });
+            }
         });
     } else {
         // clear cookie and send errors accordingly

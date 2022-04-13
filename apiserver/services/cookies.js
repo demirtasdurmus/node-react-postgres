@@ -1,7 +1,7 @@
 var crypto = require("crypto");
 
 // encrypt a session cookie
-exports.encyript = (token) => {
+exports.encrypt = (token) => {
     try {
         // check if token exists and is a string
         if (!token || typeof (token) !== 'string') {
@@ -31,7 +31,7 @@ exports.encyript = (token) => {
 };
 
 // decrypt a session cookie
-exports.decyript = (cookie) => {
+exports.decrypt = (cookie) => {
     try {
         // check if token exists and is a string, and has the min length to be decrypted
         if (typeof (cookie) !== 'string' || cookie.length < 43) {
