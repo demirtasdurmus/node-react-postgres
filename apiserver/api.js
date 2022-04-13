@@ -7,7 +7,7 @@ const skillRoutes = require("./routes/skillRoutes");
 
 api.use('/auth', authRoutes);
 api.use('/users', userRoutes);
-api.use('/skills', skillRoutes);
+api.use('/skills', isLoggedIn, skillRoutes);
 
 
 module.exports = api;
