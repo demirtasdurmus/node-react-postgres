@@ -21,7 +21,7 @@ export default function useAuth() {
                 navigate(redirectPage ? redirectPage : '/skills');
             })
             .catch((err) => {
-                console.log(err.response.data.message);
+                alertNotification("error", err.response.data.message);
                 navigate('/sign-in');
             })
     };
@@ -39,8 +39,8 @@ export default function useAuth() {
     const loginUser = (values, redirectPage) => {
         service.loginUser(values)
             .then((res) => {
-                localStorage.setItem('r-token', res.data.data.token);
                 setUserContext(redirectPage);
+                localStorage.setItem('r-token', res.data.data.token);
                 alertNotification("success", "Logged in successfully");
             })
             .catch((err) => {

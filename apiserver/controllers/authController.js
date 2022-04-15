@@ -78,9 +78,9 @@ exports.verify = catchAsync(async (req, res, next) => {
         // assign the cookie to the response
         res.cookie("__session", sessionCookie, {
             expires: cookieExpiry,
-            httpOnly: process.env.NODE_ENV === "development" ? false : true,
-            secure: process.env.NODE_ENV === "development" ? false : true,
-            //sameSite: "strict"
+            httpOnly: true,
+            secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
+            sameSite: process.env.NODE_ENV === "development" ? "Lax" : "Strict"
         });
     };
     res.redirect(`${setBaseUrl()}`);
