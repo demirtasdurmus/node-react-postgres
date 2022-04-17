@@ -1,7 +1,15 @@
+const { promisify } = require('util')
 var crypto = require("crypto");
 
+
+// generate a random string
+const getKey = async (size) => {
+    const key = await promisify(crypto.randomBytes)(size);
+    return key.toString('hex');
+};
+
 // encrypt a session cookie
-exports.encrypt = (token) => {
+exports.encrypt = async (token) => {
     try {
         // check if token exists and is a string
         if (!token || typeof (token) !== 'string') {
@@ -9,14 +17,15 @@ exports.encrypt = (token) => {
         };
         // encrypt the token with Base64
         const encryptedToken = Buffer.from(token).toString('base64');
+        console.log("token: ", encryptedToken);
 
         // create a random string and encrypt to prefix the encrypted token
-        const randomStringPrefix = crypto.randomBytes(10).toString('hex');
+        const randomStringPrefix = await getKey(10);
         const encryptedPrefix = Buffer.from(randomStringPrefix).toString('base64');
         const configuredPrefix = encryptedPrefix.slice(0, encryptedPrefix.length - 1); // 27 chars long
 
         // create a random string and encrypt to inject in the middle of the encrypted token
-        const randomStringMiddle = crypto.randomBytes(20).toString('hex');
+        const randomStringMiddle = await getKey(20);
         const encryptedMiddle = Buffer.from(randomStringMiddle).toString('base64');
         const configuredMiddle = encryptedMiddle.slice(0, encryptedMiddle.length - 2); // 54 chars long
 

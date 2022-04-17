@@ -70,7 +70,7 @@ exports.verify = catchAsync(async (req, res, next) => {
             },
             process.env.JWT_SESSION_SECRET,
             process.env.JWT_SESSION_EXPIRY);
-        const sessionCookie = cookies.encrypt(token);
+        const sessionCookie = await cookies.encrypt(token);
 
         // create a cookie expiry date
         const cookieExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
@@ -125,7 +125,7 @@ exports.login = catchAsync(async (req, res, next) => {
         process.env.JWT_SESSION_SECRET,
         process.env.JWT_SESSION_EXPIRY
     );
-    const sessionCookie = cookies.encrypt(sessionToken);
+    const sessionCookie = await cookies.encrypt(sessionToken);
     const sessionExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     console.log("first session expiry: ", sessionExpiry);
 
@@ -147,7 +147,7 @@ exports.login = catchAsync(async (req, res, next) => {
         process.env.JWT_REFRESH_SECRET,
         process.env.JWT_REFRESH_EXPIRY
     );
-    const refreshCookie = cookies.encrypt(refreshToken);
+    const refreshCookie = await cookies.encrypt(refreshToken);
 
     // save the refresh token to the db
     user.refresh_token = refreshCookie;
