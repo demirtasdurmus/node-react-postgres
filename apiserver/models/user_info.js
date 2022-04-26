@@ -14,18 +14,47 @@ const UserInfo = sampledb.define(
         first_name: {
             type: Sequelize.STRING(50),
             allowNull: false,
+            validate: {
+                notNull: {
+                    msg: "First name is required"
+                },
+                len: {
+                    args: [1, 50],
+                    msg: "First name must be between 1 and 50 characters"
+                },
+            }
         },
         last_name: {
             type: Sequelize.STRING(50),
             allowNull: false,
+            validate: {
+                notNull: {
+                    msg: "Last name is required"
+                },
+                len: {
+                    args: [1, 50],
+                    msg: "Last name must be between 1 and 50 characters"
+                },
+            }
         },
         email: {
             type: Sequelize.STRING(50),
             allowNull: false,
+            unique: true,
+            validate: {
+                isEmail: {
+                    msg: "Please enter a valid email address",
+                },
+            }
         },
         password: {
             type: Sequelize.TEXT,
             allowNull: false,
+            validate: {
+                notNull: {
+                    msg: "Password is required"
+                },
+            }
         },
         is_verified: {
             type: Sequelize.BOOLEAN,

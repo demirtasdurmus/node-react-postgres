@@ -3,7 +3,7 @@ var crypto = require("crypto");
 
 
 // generate a random string
-const getKey = async (size) => {
+const getRandomBytes = async (size) => {
     const key = await promisify(crypto.randomBytes)(size);
     return key.toString('hex');
 };
@@ -20,12 +20,12 @@ exports.encrypt = async (token) => {
         console.log("token: ", encryptedToken);
 
         // create a random string and encrypt to prefix the encrypted token
-        const randomStringPrefix = await getKey(10);
+        const randomStringPrefix = await getRandomBytes(10);
         const encryptedPrefix = Buffer.from(randomStringPrefix).toString('base64');
         const configuredPrefix = encryptedPrefix.slice(0, encryptedPrefix.length - 1); // 27 chars long
 
         // create a random string and encrypt to inject in the middle of the encrypted token
-        const randomStringMiddle = await getKey(20);
+        const randomStringMiddle = await getRandomBytes(20);
         const encryptedMiddle = Buffer.from(randomStringMiddle).toString('base64');
         const configuredMiddle = encryptedMiddle.slice(0, encryptedMiddle.length - 2); // 54 chars long
 

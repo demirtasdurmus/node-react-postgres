@@ -1,4 +1,4 @@
-const { BaseError } = require("sequelize");
+const { Error } = require("sequelize");
 const httpStatus = require('http-status');
 const AppError = require('../utils/AppError');
 
@@ -37,10 +37,16 @@ const sendErrorProd = (err, res) => {
 };
 // converting non-Express errors to AppError
 const errorConverter = (err, req, res, next) => {
+
+    console.log("is sequelize error=>", err instanceof Error);
+
+    console.log(err.message)
+
+
     let error = err;
     if (!(error instanceof AppError)) {
         const statusCode =
-            error.statusCode || error instanceof BaseError ? httpStatus.BAD_REQUEST : httpStatus.INTERNAL_SERVER_ERROR;
+            error.statusCode || error instanceof Error ? httpStatus.BAD_REQUEST : httpStatus.INTERNAL_SERVER_ERROR;
         const message = error.message || httpStatus[statusCode];
         error = new AppError(statusCode, message, error.name, false, err.stack);
     }
