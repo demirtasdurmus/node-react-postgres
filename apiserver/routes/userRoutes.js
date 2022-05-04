@@ -5,7 +5,7 @@ const userController = require('./../controllers/userController');
 
 router
     .get("/:id", userController.getUserById)
-    .patch("/", userController.uploadImage.single('profileImg'), userController.updateUserById)
+    .patch("/", userController.uploadImage('profileImg'), userController.updateUserById)
     .delete("/:id", userController.deleteUserById)
 
 
