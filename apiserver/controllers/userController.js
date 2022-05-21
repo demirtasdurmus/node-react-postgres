@@ -7,6 +7,7 @@ exports.getUserById = catchAsync(async (req, res, next) => {
 });
 
 exports.updateUserById = catchAsync(async (req, res, next) => {
+    console.log("req.files", req.files.filenames)
     //FIXME: add control for multiple images and sync file names
     const url = req.protocol + '://' + req.get('host');
 

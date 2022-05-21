@@ -7,7 +7,7 @@ const sharp = require('sharp');
 module.exports = ({ width = 500, height = 500, quality = 90, format = "jpeg" }) => {
     return catchAsync(async (req, res, next) => {
         if (!req.file) return next();
-        console.log("first,", req.file);
+        //console.log("first,", req.file);
 
         req.file.filename = `user-${uuidv4()}.${format}`;
 

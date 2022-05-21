@@ -10,9 +10,12 @@ module.exports = ({ width = 500, height = 500, quality = 90, format = "jpeg" }) 
         // extract image names from req.files
         const imageNames = Object.keys(req.files);
 
+        req.files.filenames = {};
+
         // loop through image groups
         for (let i = 0; i < imageNames.length; i++) {
             // map each group and resize&save each image
+            var arr = []
             await Promise.all(
                 req.files[imageNames[i]].map(async file => {
                     const newFilename = `${file.fieldname}-${uuidv4()}.jpeg`;
@@ -21,8 +24,10 @@ module.exports = ({ width = 500, height = 500, quality = 90, format = "jpeg" }) 
                         .toFormat(format)
                         .jpeg({ quality: quality })
                         .toFile(`${process.env.IMAGES_DIR}/${newFilename}`);
+                    arr.push(newFilename);
                 })
             );
+            req.files.filenames[imageNames[i]] = arr;
         }
         next();
     })

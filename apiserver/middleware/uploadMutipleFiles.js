@@ -50,7 +50,7 @@ const fileFilter = (req, file, cb) => {
 // upload multiple files with different names
 module.exports = (options, { storage }) => {
     return (req, res, next) => {
-        console.log("first,", options);
+        //console.log("first,", options);
         // create upload function with passed arguments(name and count)
         const upload = multer({
             storage: storage && storage === "memory" ? memoryStorage : diskStorage,
@@ -59,6 +59,7 @@ module.exports = (options, { storage }) => {
             .fields(options);
         // call upload function immediately and return
         return upload(req, res, function (err) {
+            //console.log("first,", req.file);
             if (err) {
                 console.log(err)
                 // handle file count limit error exclusively
