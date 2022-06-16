@@ -5,7 +5,7 @@ const catchAsync = require('../utils/catchAsync');
 const cookieService = require("../services/cookieService");
 const jwtService = require('../services/jwtService');
 const { UserInfo, Role } = require('../models');
-const { API_URL } = require('../config');
+const { CLIENT_URL } = require('../config');
 
 
 // register the new user
@@ -83,7 +83,7 @@ exports.verify = catchAsync(async (req, res, next) => {
             sameSite: process.env.NODE_ENV === "development" ? "Lax" : "Strict"
         });
     };
-    res.redirect(`${API_URL}`);
+    res.redirect(`${CLIENT_URL}`);
 });
 
 // login user

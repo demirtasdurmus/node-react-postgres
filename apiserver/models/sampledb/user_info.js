@@ -1,8 +1,8 @@
 const bcrypt = require("bcryptjs");
-const AppError = require("../utils/appError");
-const jwtService = require("../services/jwtService");
-const EmailService = require("../services/emailService");
-const { API_URL } = require('../config');
+const AppError = require("../../utils/appError");
+const jwtService = require("../../services/jwtService");
+const EmailService = require("../../services/emailService");
+const { API_URL } = require('../../config');
 
 
 module.exports = (db, Sequelize) => {

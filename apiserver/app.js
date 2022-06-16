@@ -12,9 +12,9 @@ const morgan = require("morgan");
 // internal modules/utils/middlewares/services
 const api = require("./api");
 const cookieService = require("./services/cookieService");
-const jwToken = require("./services/jwToken");
-const { errorConverter, errorHandler } = require("./middleware/errors");
-const AppError = require('./utils/AppError');
+const jwtService = require("./services/jwtService");
+const errorConverter = require('./middleware/errors/errorConverter');
+const errorHandler = require('./middleware/errors/errorHandler');
 
 
 // parsing cookies for auth
@@ -27,7 +27,7 @@ app.use((req, res, next) => {
     if (__session) {
         // decode jwt token from cookie session and verify
         const token = cookieService.decrypt(__session);
-        const payload = jwToken.decode(token);
+        const payload = jwtService.decode(token);
         if (payload) {
             req.userId = payload.id;
         }

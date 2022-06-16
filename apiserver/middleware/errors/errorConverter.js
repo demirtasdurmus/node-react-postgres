@@ -1,5 +1,5 @@
 const httpStatus = require('http-status');
-const AppError = require('../utils/AppError');
+const AppError = require('../../utils/appError');
 const { Error } = require("sequelize");
 const { JsonWebTokenError, TokenExpiredError, NotBeforeError } = require('jsonwebtoken');
 
@@ -33,7 +33,7 @@ module.exports = (err, req, res, next) => {
         };
 
         // recreate the error object with the new arguments
-        error = new AppError(error.statusCode, error.message, error.name, error.isOperational, error.stack);
+        error = new AppError(error.statusCode, error.message, error.isOperational, error.name, error.stack);
     };
     // pass the error to the actual error handler middleware
     next(error);
