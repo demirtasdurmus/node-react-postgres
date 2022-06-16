@@ -1,4 +1,4 @@
-const AppError = require('../utils/AppError');
+const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const { UserInfo, Skill, LocationOption } = require('../models/index');
 

@@ -11,7 +11,7 @@ const helmet = require("helmet");
 const morgan = require("morgan");
 // internal modules/utils/middlewares/services
 const api = require("./api");
-const cookies = require("./services/cookies");
+const cookieService = require("./services/cookieService");
 const jwToken = require("./services/jwToken");
 const { errorConverter, errorHandler } = require("./middleware/errors");
 const AppError = require('./utils/AppError');
@@ -26,7 +26,7 @@ app.use((req, res, next) => {
     req.userId = "Guest";
     if (__session) {
         // decode jwt token from cookie session and verify
-        const token = cookies.decrypt(__session);
+        const token = cookieService.decrypt(__session);
         const payload = jwToken.decode(token);
         if (payload) {
             req.userId = payload.id;

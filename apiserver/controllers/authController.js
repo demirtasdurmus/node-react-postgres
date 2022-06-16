@@ -1,11 +1,11 @@
 const bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
-const AppError = require("../utils/AppError");
+const AppError = require("../utils/appError");
 const catchAsync = require('../utils/catchAsync');
-const cookies = require("../services/cookies");
-const jwToken = require('../services/jwToken');
-const setBaseUrl = require("../utils/setBaseUrl");
+const cookieService = require("../services/cookieService");
+const jwtService = require('../services/jwtService');
 const { UserInfo, Role } = require('../models');
+const { API_URL } = require('../config');
 
 
 // register the new user
@@ -18,15 +18,15 @@ exports.register = catchAsync(async (req, res, next) => {
     if (password !== passwordAgain) {
         return next(new AppError(400, "Password fields doesn't match!"));
     };
-    // // check if the user already exists
-    // const user = await UserInfo.findOne({
-    //     where: {
-    //         email: email,
-    //     },
-    // });
-    // if (user) {
-    //     return next(new AppError(400, "This user is already registered!"));
-    // };
+    // check if the user already exists
+    const user = await UserInfo.findOne({
+        where: {
+            email: email,
+        },
+    });
+    if (user) {
+        return next(new AppError(400, "This user is already registered!"));
+    };
     // create the new user
     await UserInfo.create({
         first_name: firstName,
@@ -47,7 +47,7 @@ exports.verify = catchAsync(async (req, res, next) => {
     const { token } = req.params;
 
     // verify token & extract user data
-    const decoded = await jwToken.verify(token, process.env.JWT_VERIFY_SECRET);
+    const decoded = await jwtService.verify(token, process.env.JWT_VERIFY_SECRET);
     // fetch user from db
     const user = await UserInfo.findOne({
         where: {
@@ -63,14 +63,14 @@ exports.verify = catchAsync(async (req, res, next) => {
         await user.save();
 
         // sign a session token and embed it in the cookie
-        const token = jwToken.sign(
+        const token = await jwtService.sign(
             {
                 id: user.id,
                 role: user.role.code
             },
             process.env.JWT_SESSION_SECRET,
             process.env.JWT_SESSION_EXPIRY);
-        const sessionCookie = await cookies.encrypt(token);
+        const sessionCookie = await cookieService.encrypt(token);
 
         // create a cookie expiry date
         const cookieExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
@@ -83,7 +83,7 @@ exports.verify = catchAsync(async (req, res, next) => {
             sameSite: process.env.NODE_ENV === "development" ? "Lax" : "Strict"
         });
     };
-    res.redirect(`${setBaseUrl()}`);
+    res.redirect(`${API_URL}`);
 });
 
 // login user
@@ -117,7 +117,7 @@ exports.login = catchAsync(async (req, res, next) => {
     };
 
     // sign a session token and embed it in the cookie
-    const sessionToken = jwToken.sign(
+    const sessionToken = jwtService.sign(
         {
             id: user.id,
             role: user.role.code
@@ -125,7 +125,7 @@ exports.login = catchAsync(async (req, res, next) => {
         process.env.JWT_SESSION_SECRET,
         process.env.JWT_SESSION_EXPIRY
     );
-    const sessionCookie = await cookies.encrypt(sessionToken);
+    const sessionCookie = await cookieService.encrypt(sessionToken);
     const sessionExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
     console.log("first session expiry: ", sessionExpiry);
 
@@ -138,7 +138,7 @@ exports.login = catchAsync(async (req, res, next) => {
     });
 
     // sign a refresh token and encrypt it
-    const refreshToken = jwToken.sign(
+    const refreshToken = jwtService.sign(
         {
             id: user.id,
             role: user.role.code,
@@ -147,7 +147,7 @@ exports.login = catchAsync(async (req, res, next) => {
         process.env.JWT_REFRESH_SECRET,
         process.env.JWT_REFRESH_EXPIRY
     );
-    const refreshCookie = await cookies.encrypt(refreshToken);
+    const refreshCookie = await cookieService.encrypt(refreshToken);
 
     // save the refresh token to the db
     user.refresh_token = refreshCookie;
@@ -167,7 +167,7 @@ exports.checkAuth = catchAsync(async (req, res, next) => {
     const { __session } = req.cookies;
     if (__session) {
         // decrypt session token from session cookie
-        const sessionToken = cookies.decrypt(__session);
+        const sessionToken = cookieService.decrypt(__session);
         // verify decrypted session token
         jwt.verify(sessionToken, process.env.JWT_SESSION_SECRET, (err, sessionData) => {
             if (err) {
@@ -176,7 +176,7 @@ exports.checkAuth = catchAsync(async (req, res, next) => {
                     const { authorization } = req.headers;
                     if (authorization && authorization.startsWith("Bearer")) {
                         // decrypt refresh token from authorization header
-                        const refreshToken = cookies.decrypt(authorization.split(" ")[1]);
+                        const refreshToken = cookieService.decrypt(authorization.split(" ")[1]);
                         // verify decrypted refresh token
                         jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (error, refreshData) => {
                             // send a 401 error if the refresh token is invalid
@@ -207,7 +207,7 @@ exports.checkAuth = catchAsync(async (req, res, next) => {
 
                                         // if everything is ok;
                                         // 1) sign a new session token and embed it in the cookie
-                                        const sessionToken = jwToken.sign(
+                                        const sessionToken = jwtService.sign(
                                             {
                                                 id: currentUser.id,
                                                 role: currentUser.role.code
@@ -215,7 +215,7 @@ exports.checkAuth = catchAsync(async (req, res, next) => {
                                             process.env.JWT_SESSION_SECRET,
                                             process.env.JWT_SESSION_EXPIRY
                                         );
-                                        const sessionCookie = cookies.encrypt(sessionToken);
+                                        const sessionCookie = cookieService.encrypt(sessionToken);
                                         const sessionExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
 
                                         // assign the cookie to the response with appropriate expiry date

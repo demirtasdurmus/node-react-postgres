@@ -1,5 +1,5 @@
 const { v4: uuidv4 } = require('uuid');
-const AppError = require('../utils/AppError');
+const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const sharp = require('sharp');
 

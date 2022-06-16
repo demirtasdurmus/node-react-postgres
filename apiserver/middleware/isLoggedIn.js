@@ -1,16 +1,16 @@
 const jwt = require('jsonwebtoken');
 const { UserInfo, Role } = require('../models');
-const AppError = require('../utils/AppError');
+const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
-const cookies = require("../services/cookies");
-const jwToken = require('../services/jwToken');
+const cookieService = require("../services/cookieService");
+const jwtService = require('../services/jwtService');
 
 
 module.exports = catchAsync(async (req, res, next) => {
     const { __session } = req.cookies;
     if (__session) {
         // decrypt session token from session cookie
-        const sessionToken = cookies.decrypt(__session);
+        const sessionToken = cookieService.decrypt(__session);
         // verify decrypted session token
         jwt.verify(sessionToken, process.env.JWT_SESSION_SECRET, (err, sessionData) => {
             if (err) {
@@ -19,7 +19,7 @@ module.exports = catchAsync(async (req, res, next) => {
                     const { authorization } = req.headers;
                     if (authorization && authorization.startsWith("Bearer")) {
                         // decrypt refresh token from authorization header
-                        const refreshToken = cookies.decrypt(authorization.split(" ")[1]);
+                        const refreshToken = cookieService.decrypt(authorization.split(" ")[1]);
                         // verify decrypted refresh token
                         jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, (error, refreshData) => {
                             // send a 401 error if the refresh token is invalid
@@ -50,7 +50,7 @@ module.exports = catchAsync(async (req, res, next) => {
 
                                         // if everything is ok;
                                         // 1) sign a new session token and embed it in the cookie
-                                        const sessionToken = jwToken.sign(
+                                        const sessionToken = jwtService.sign(
                                             {
                                                 id: currentUser.id,
                                                 role: currentUser.role.code

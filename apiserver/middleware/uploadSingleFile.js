@@ -1,6 +1,6 @@
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
-const AppError = require('../utils/AppError');
+const AppError = require('../utils/appError');
 
 
 // configure disk storage option
