@@ -1,16 +1,25 @@
-const UserInfo = require("./user_info");
-const Skill = require("./skill");
-const LocationOption = require("./location_option");
-const Role = require("./role");
+const Sequelize = require("sequelize");
 
-// table relationships
-UserInfo.hasMany(Skill);
-Skill.belongsTo(UserInfo);
+// creating the auth url
+const url = `postgres://${process.env.SAMPLEDB_USER}:${process.env.SAMPLEDB_PASSWORD}@${process.env.SAMPLEDB_ADDRESS}:${process.env.SAMPLEDB_PORT}/${process.env.SAMPLEDB_NAME}`;
+// creating the db instance
+const sampledb = new Sequelize(url, {
+    logging: false,
+    dialect: 'postgres',
+    define: {
+        underscored: true,
+        freezeTableName: true,
+        timestamps: false
+    },
+});
 
-Role.hasMany(UserInfo);
-UserInfo.belongsTo(Role);
+var db = {}
 
-Skill.hasMany(LocationOption);
-LocationOption.belongsTo(Skill);
 
-module.exports = { UserInfo, Skill, LocationOption, Role };
+var sampledbModels = require("./sampledb")(sampledb, Sequelize)
+
+
+db = { ...sampledbModels }
+db.sampledb = sampledb;
+
+module.exports = db;

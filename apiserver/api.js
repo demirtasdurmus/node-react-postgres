@@ -9,5 +9,4 @@ api.use('/auth', authRoutes);
 api.use('/users', userRoutes);
 api.use('/skills', isLoggedIn, skillRoutes);
 
-
 module.exports = api;

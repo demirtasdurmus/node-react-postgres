@@ -16,6 +16,7 @@ const jwToken = require("./services/jwToken");
 const { errorConverter, errorHandler } = require("./middleware/errors");
 const AppError = require('./utils/AppError');
 
+
 // parsing cookies for auth
 app.use(cookieParser())
 
@@ -59,7 +60,7 @@ app.use(express.static(path.join(__dirname, "images")));
 app.use(compression());
 
 // redirecting incoming requests to api.js
-app.use("/api/v1", api);
+app.use(`/api/${process.env.API_VERSION}`, api);
 
 // returning the main index.html, so react-router render the route in the client
 app.get("*", (req, res) => {
@@ -68,8 +69,8 @@ app.get("*", (req, res) => {
 
 // setting up a 404 error handler
 app.all("*", (req, res, next) => {
-    next(new AppError(404, "Can't find the route!"));
-})
+    res.status(404).end();
+});
 
 // converting error to AppError, if needed
 app.use(errorConverter);

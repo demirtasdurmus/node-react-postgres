@@ -11,7 +11,8 @@ process.on("uncaughtException", err => {
 dotenv.config({ path: "./.config.env" });
 
 // creating database instance and connecting
-const { sampledb } = require("./models/db");
+const { sampledb } = require("./models");
+
 // connect and sync db
 sampledb.authenticate()
     .then(() => console.log("connected sampledb successfully!"))

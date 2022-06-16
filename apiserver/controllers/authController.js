@@ -5,7 +5,7 @@ const catchAsync = require('../utils/catchAsync');
 const cookies = require("../services/cookies");
 const jwToken = require('../services/jwToken');
 const setBaseUrl = require("../utils/setBaseUrl");
-const { UserInfo, Role } = require('../models/index');
+const { UserInfo, Role } = require('../models');
 
 
 // register the new user
