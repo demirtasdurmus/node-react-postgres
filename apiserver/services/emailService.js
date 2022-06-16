@@ -28,7 +28,7 @@ module.exports = class Email {
             {
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${SENDGRID_API_KEY}`
+                    'Authorization': `Bearer ${process.env.SENDGRID_API_KEY}`
                 }
             })
     };
