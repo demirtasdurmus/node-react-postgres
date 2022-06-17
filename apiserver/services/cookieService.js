@@ -17,7 +17,6 @@ exports.encrypt = async (token) => {
         };
         // encrypt the token with Base64
         const encryptedToken = Buffer.from(token).toString('base64');
-        console.log("token: ", encryptedToken);
 
         // create a random string and encrypt to prefix the encrypted token
         const randomStringPrefix = await getRandomBytes(10);

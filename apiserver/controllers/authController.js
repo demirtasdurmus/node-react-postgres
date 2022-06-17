@@ -27,7 +27,7 @@ exports.register = catchAsync(async (req, res, next) => {
         return next(new AppError(400, "This user is already registered!"));
     };
     // create the new user
-    await UserInfo.create({
+    const newUser = await UserInfo.create({
         first_name: firstName,
         last_name: lastName,
         email: email,
@@ -35,9 +35,10 @@ exports.register = catchAsync(async (req, res, next) => {
         password: password,
         is_verified: false,
     });
+
     res.status(201).send({
         status: "success",
-        message: "User registered successfully! Please check your email to verify your account!",
+        data: { firstName: newUser.first_name, lastName: newUser.last_name }
     });
 });
 
@@ -180,5 +181,5 @@ exports.checkAuth = catchAsync(async (req, res, next) => {
 // logout user
 exports.logout = catchAsync(async (req, res, next) => {
     res.clearCookie("__session");
-    res.status(200).json({ status: 'success' });
+    res.status(200).json({ status: 'success', data: '' });
 });
