@@ -30,7 +30,7 @@ module.exports = catchAsync(async (req, res, next) => {
     };
     // assign the user id to the request object and pass it to the next middleware
     req.userId = user.id;
-    req.role = user.rol.rolAdi;
+    req.role = user.role.description;
     req.user = user;
     return next();
 });
