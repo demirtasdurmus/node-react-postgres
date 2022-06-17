@@ -13,9 +13,6 @@ const { CLIENT_URL } = require('../config');
 exports.register = catchAsync(async (req, res, next) => {
     const { firstName, lastName, email, password, passwordConfirm } = req.body;
 
-    // if (password !== passwordConfirm) {
-    //     return next(new AppError(400, "Password fields don't match!"));
-    // };
     // create the new user
     const newUser = await UserInfo.create({
         first_name: firstName,
