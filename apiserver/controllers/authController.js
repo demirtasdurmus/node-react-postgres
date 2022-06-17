@@ -16,13 +16,6 @@ exports.register = catchAsync(async (req, res, next) => {
     if (password !== passwordConfirm) {
         return next(new AppError(400, "Password fields doesn't match!"));
     };
-    // check if the user already exists
-    const user = await UserInfo.findOne({
-        where: { email: email }
-    });
-    if (user) {
-        return next(new AppError(400, "This user is already registered!"));
-    };
     // create the new user
     const newUser = await UserInfo.create({
         first_name: firstName,

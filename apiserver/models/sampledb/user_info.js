@@ -37,7 +37,9 @@ module.exports = (db, Sequelize) => {
             email: {
                 type: Sequelize.STRING(50),
                 allowNull: false,
-                unique: true,
+                unique: {
+                    msg: 'This user is already registered!'
+                },
                 validate: {
                     isEmail: {
                         msg: "Please enter a valid email address",
