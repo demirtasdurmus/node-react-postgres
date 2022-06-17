@@ -4,7 +4,7 @@
   "description": "A node react boielerplate",
   "main": "index.js",
   "scripts": {
-    "start": "concurrently \"cd apiserver && nodemon index.js\" \"cd client && npm start\" ",
+    "dev": "concurrently \"cd apiserver && nodemon index.js\" \"cd client && npm start\" ",
     "prod": "concurrently \"cd apiserver && nodemon index.js\" ",
     "build": "concurrently \"cd client && npm run build\" ",
     "test": "echo \"Error: no test specified\" && exit 1"

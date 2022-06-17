@@ -21,9 +21,7 @@ exports.register = catchAsync(async (req, res, next) => {
     };
     // check if the user already exists
     const user = await UserInfo.findOne({
-        where: {
-            email: email,
-        },
+        where: { email: email }
     });
     if (user) {
         return next(new AppError(400, "This user is already registered!"));

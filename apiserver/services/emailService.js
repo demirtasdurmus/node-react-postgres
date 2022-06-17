@@ -3,8 +3,6 @@ const axios = require("axios");
 
 module.exports = class Email {
     constructor(user, data, fromOption = `${process.env.SENDGRID_EMAIL_FROM}`) {
-        this.data = { ...data };
-        this.data.name = user.first_name.toUpperCase();
         this.request = {
             "from": {
                 "email": `durmusdemirtas.com <${fromOption}>`
@@ -15,7 +13,7 @@ module.exports = class Email {
             "personalizations": [
                 {
                     "to": [{ "email": user.email }],
-                    "dynamic_template_data": data
+                    "dynamic_template_data": { name: user.first_name.toUpperCase(), ...data }
                 }
             ]
         }
