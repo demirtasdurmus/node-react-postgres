@@ -55,6 +55,20 @@ module.exports = (db, Sequelize) => {
                     },
                 }
             },
+            password_confirm: {
+                type: Sequelize.TEXT,
+                allowNull: false,
+                validate: {
+                    notNull: {
+                        msg: "Password Confirm is required"
+                    },
+                    doPasswordsMatch: function (value) {
+                        if (value !== this.password) {
+                            throw new AppError(400, "Password fields don't match!");
+                        }
+                    }
+                }
+            },
             is_verified: {
                 type: Sequelize.BOOLEAN,
                 allowNull: false,
