@@ -25,7 +25,11 @@ exports.verify = async (token, secret) => {
         const decoded = await promisify(jwt.verify)(token, secret);
         return decoded;
     } catch (err) {
-        throw new AppError(401, "Invalid Token", true, err.name, err.stack);
+        // throw send errors accordingly
+        if (err.name === 'TokenExpiredError') {
+            throw new AppError(401, "Session expired!", true, err.name, err.stack);
+        };
+        throw new AppError(401, err.message, true, err.name, err.stack);
     };
 };
 

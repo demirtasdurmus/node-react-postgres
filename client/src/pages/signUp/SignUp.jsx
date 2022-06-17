@@ -75,7 +75,7 @@ export default function SignIn() {
           </Form.Item>
 
           <Form.Item
-            name="passwordAgain"
+            name="passwordConfirm"
             rules={[{ required: true, message: 'Please input your password again!' },
             { min: 5, message: 'Password must be minimum 5 characters!' }
             ]}
