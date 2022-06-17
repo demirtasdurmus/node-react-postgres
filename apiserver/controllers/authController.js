@@ -12,10 +12,7 @@ const { CLIENT_URL } = require('../config');
 // register the new user
 exports.register = catchAsync(async (req, res, next) => {
     const { firstName, lastName, email, password, passwordConfirm } = req.body;
-    // validate user inputs
-    if (!firstName || !lastName || !email || !password) {
-        return next(new AppError(400, "Please fill all the required fields!"));
-    };
+
     if (password !== passwordConfirm) {
         return next(new AppError(400, "Password fields doesn't match!"));
     };
@@ -31,9 +28,7 @@ exports.register = catchAsync(async (req, res, next) => {
         first_name: firstName,
         last_name: lastName,
         email: email,
-        roleId: 1,
         password: password,
-        is_verified: false,
     });
 
     res.status(201).send({
@@ -58,7 +53,7 @@ exports.verify = catchAsync(async (req, res, next) => {
     });
 
     // update user data
-    if (user && user.verify !== true) {
+    if (user && user.is_verified !== true) {
         user.is_verified = true;
         await user.save();
 
@@ -98,9 +93,10 @@ exports.login = catchAsync(async (req, res, next) => {
     // check if user exists
     const user = await UserInfo.findOne({
         where: { email },
-        attributes: ["id", "password", "refresh_token", "is_verified"],
+        //attributes: ["id", "password", "refresh_token", "is_verified"],
         include: [Role]
     });
+    console.log("aaa", user.role.code);
     if (!user) {
         return next(new AppError(400, "Incorrect email or password!"));
     };

@@ -29,7 +29,7 @@ export default function useAuth() {
     const registerUser = (values) => {
         service.registerUser(values)
             .then((res) => {
-                alertNotification("success", res.data.message)
+                alertNotification("success", "Registered successfully. Please verify your email address.");
             })
             .catch((err) => {
                 alertNotification("error", err.response.data.message)

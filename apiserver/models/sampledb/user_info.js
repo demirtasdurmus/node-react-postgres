@@ -56,6 +56,7 @@ module.exports = (db, Sequelize) => {
             is_verified: {
                 type: Sequelize.BOOLEAN,
                 allowNull: false,
+                defaultValue: false,
             },
             profile_img: {
                 type: Sequelize.STRING(150),
@@ -72,6 +73,7 @@ module.exports = (db, Sequelize) => {
     UserInfo.beforeCreate((user) => {
         try {
             user.password = bcrypt.hashSync(user.password, Number(process.env.PASSWORD_HASH_CYCLE))
+            user.roleId = 1;
         } catch (err) {
             throw new AppError(500, err.message, err.name, false, err.stack);
         }
@@ -80,9 +82,9 @@ module.exports = (db, Sequelize) => {
     // send a verification email after creating a new user
     UserInfo.afterCreate(async (user) => {
         try {
+            // send a verification email
             const token = await jwtService.sign({ id: user.id }, process.env.JWT_VERIFY_SECRET, process.env.JWT_VERIFY_EXPIRY);
             const verificationUrl = `${API_URL}/api/${process.env.API_VERSION}/auth/verify/${token}`;
-
             await new EmailService(user, { verificationUrl }).sendEmailVerification();
         } catch (err) {
             throw new AppError(500, err.message, err.name, false, err.stack);
