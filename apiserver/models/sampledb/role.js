@@ -1,7 +1,7 @@
 module.exports = (db, Sequelize) => {
     const Role = db.define("role",
         {
-            description: {
+            name: {
                 type: Sequelize.ENUM('user', 'admin', 'superAdmin'),
                 allowNull: false,
             },
