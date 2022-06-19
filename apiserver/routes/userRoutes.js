@@ -10,12 +10,12 @@ const resizeMultipleImages = require('../middleware/resizeMultipleImages');
 
 router
     .get("/", userController.getMe)
-    .patch("/",
-        //uploadSingleFile("profileImg", { storage: "memory" }),
-        uploadMutipleFiles([{ name: "profileImg", maxCount: 10 }, { name: "coverImg", maxCount: 10 }, { name: "myImage", maxCount: 10 }], { storage: "memory" }),
-        //resizeSingleImage({ width: 100, height: 100, quality: 90, format: "jpeg" }),
-        resizeMultipleImages({ width: 100, height: 100, quality: 90, format: "jpeg" }),
-        userController.updateUserById)
-    .delete("/:id", userController.deleteUserById)
+    .post("/",
+        uploadSingleFile("profileImage", { storage: "memory" }),
+        //uploadMutipleFiles([{ name: "profileImg", maxCount: 10 }, { name: "coverImg", maxCount: 10 }, { name: "myImage", maxCount: 10 }], { storage: "memory" }),
+        resizeSingleImage("profileImage", { width: 100, height: 100, quality: 90, format: "jpeg" }),
+        //resizeMultipleImages({ width: 100, height: 100, quality: 90, format: "jpeg" }),
+        userController.updateUserProfile)
+    .patch("/", userController.updateUserPassword)
 
 module.exports = router;
