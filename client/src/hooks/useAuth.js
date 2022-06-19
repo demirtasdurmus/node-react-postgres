@@ -41,7 +41,7 @@ export default function useAuth() {
             .then((res) => {
                 setUserContext(redirectPage);
                 localStorage.setItem('r-token', res.data.data.token);
-                alertNotification("success", "Logged in successfully");
+                //alertNotification("success", "Logged in successfully");
             })
             .catch((err) => {
                 alertNotification("error", err.response.data.message)
@@ -53,7 +53,7 @@ export default function useAuth() {
             .then((res) => {
                 setUser(null);
                 localStorage.removeItem('r-token');
-                alertNotification("success", "Logged out successfully");
+                //alertNotification("success", "Logged out successfully");
             })
             .catch((err) => {
                 alertNotification("error", err.response.data.message)

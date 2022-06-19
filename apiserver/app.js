@@ -44,7 +44,9 @@ if (process.env.NODE_ENV === "development") {
 app.use(cors());
 
 // setting security HTTP headers
-app.use(helmet());
+app.use(helmet({
+    crossOriginResourcePolicy: false,
+}));
 
 // parsing incoming requests with JSON body payloads
 app.use(express.json());

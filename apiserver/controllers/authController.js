@@ -134,7 +134,7 @@ exports.checkAuth = catchAsync(async (req, res, next) => {
         where: {
             id: decoded.id
         },
-        attributes: ["id", "firstName", "lastName"],
+        attributes: ["id", "firstName", "lastName", "email", "profileImg"],
         include: [Role]
     });
     // check if user still exists
@@ -147,7 +147,9 @@ exports.checkAuth = catchAsync(async (req, res, next) => {
         id: user.id,
         firstName: user.firstName,
         lastName: user.lastName,
-        role: user.role.name
+        role: user.role.name,
+        email: user.email,
+        profileImg: user.profileImg
     };
     return res.status(200).send({
         status: "success",
