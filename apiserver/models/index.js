@@ -8,9 +8,9 @@ const sampledb = new Sequelize(url, {
     logging: false,
     dialect: 'postgres',
     define: {
-        underscored: true,
-        freezeTableName: true,
-        timestamps: false
+        underscored: true, // use snake_case for all fields in the database
+        // freezeTableName: true, //stop the auto-pluralization performed by Sequelize
+        timestamps: false // don't add timestamps to tables by default (createdAt, updatedAt)
     },
 });
 

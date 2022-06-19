@@ -5,11 +5,11 @@ module.exports = (db, Sequelize) => {
                 type: Sequelize.STRING(50),
                 allowNull: false,
             },
-            tag_line: {
+            tagLine: {
                 type: Sequelize.TEXT,
                 allowNull: false,
             },
-            travel_fee: {
+            travelFee: {
                 type: Sequelize.DECIMAL(10, 2),
                 allowNull: true,
             },

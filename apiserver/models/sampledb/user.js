@@ -6,9 +6,9 @@ const { API_URL } = require('../../config');
 
 
 module.exports = (db, Sequelize) => {
-    const UserInfo = db.define("user_info",
+    const User = db.define("user",
         {
-            first_name: {
+            firstName: {
                 type: Sequelize.STRING(50),
                 allowNull: false,
                 validate: {
@@ -21,7 +21,7 @@ module.exports = (db, Sequelize) => {
                     },
                 }
             },
-            last_name: {
+            lastName: {
                 type: Sequelize.STRING(50),
                 allowNull: false,
                 validate: {
@@ -55,7 +55,7 @@ module.exports = (db, Sequelize) => {
                     },
                 }
             },
-            password_confirm: {
+            passwordConfirm: {
                 type: Sequelize.TEXT,
                 allowNull: false,
                 validate: {
@@ -69,16 +69,16 @@ module.exports = (db, Sequelize) => {
                     }
                 }
             },
-            is_verified: {
+            isVerified: {
                 type: Sequelize.BOOLEAN,
                 allowNull: false,
                 defaultValue: false,
             },
-            profile_img: {
+            profileImg: {
                 type: Sequelize.STRING(150),
                 allowNull: true,
             },
-            refresh_token: {
+            refreshToken: {
                 type: Sequelize.TEXT,
                 allowNull: true,
             }
@@ -86,7 +86,7 @@ module.exports = (db, Sequelize) => {
     );
 
     // hash password before creating a new user
-    UserInfo.beforeCreate((user) => {
+    User.beforeCreate((user) => {
         try {
             user.password = bcrypt.hashSync(user.password, Number(process.env.PASSWORD_HASH_CYCLE))
             user.roleId = 1;
@@ -96,15 +96,17 @@ module.exports = (db, Sequelize) => {
     });
 
     // send a verification email after creating a new user
-    UserInfo.afterCreate(async (user) => {
+    User.afterCreate(async (user) => {
         try {
             // send a verification email
             const token = await jwtService.sign({ id: user.id }, process.env.JWT_VERIFY_SECRET, process.env.JWT_VERIFY_EXPIRY);
             const verificationUrl = `${API_URL}/api/${process.env.API_VERSION}/auth/verify/${token}`;
             await new EmailService(user, { verificationUrl }).sendEmailVerification();
+            user.passwordConfirm = 'confirmed';
+            await user.save({ validate: false });
         } catch (err) {
             throw new AppError(500, err.message, err.name, false, err.stack);
         }
     });
-    return UserInfo;
+    return User;
 };

@@ -5,49 +5,45 @@ const AppError = require("../utils/appError");
 const catchAsync = require('../utils/catchAsync');
 const cookieService = require("../services/cookieService");
 const jwtService = require('../services/jwtService');
-const { UserInfo, Role } = require('../models');
+const { User, Role } = require('../models');
 const { CLIENT_URL } = require('../config');
 
 
 // register the new user
 exports.register = catchAsync(async (req, res, next) => {
     const { firstName, lastName, email, password, passwordConfirm } = req.body;
-
     // create the new user
-    const newUser = await UserInfo.create({
-        first_name: firstName,
-        last_name: lastName,
-        email: email,
-        password: password,
-        password_confirm: passwordConfirm
+    const newUser = await User.create({
+        firstName,
+        lastName,
+        email,
+        password,
+        passwordConfirm
     });
-
+    // send success response
     res.status(201).send({
         status: "success",
-        data: { firstName: newUser.first_name, lastName: newUser.last_name }
+        data: { firstName: newUser.firstName, lastName: newUser.lastName }
     });
 });
 
 // verify and login the new user for the first time
 exports.verify = catchAsync(async (req, res, next) => {
     const { token } = req.params;
-
     // verify token & extract user data
     const decoded = await jwtService.verify(token, process.env.JWT_VERIFY_SECRET);
     // fetch user from db
-    const user = await UserInfo.findOne({
+    const user = await User.findOne({
         where: {
             id: decoded.id
         },
-        attributes: ["id", "is_verified"],
+        attributes: ["id", "isVerified"],
         include: [Role]
     });
-
-    // update user data
-    if (user && user.is_verified !== true) {
-        user.is_verified = true;
-        await user.save();
-
+    // verify and login the user only if the user is not verified
+    if (user && user.isVerified !== true) {
+        user.isVerified = true;
+        await user.save({ fields: ["isVerified"] });
         // sign a session token and embed it in the cookie
         const token = await jwtService.sign(
             {
@@ -75,33 +71,28 @@ exports.verify = catchAsync(async (req, res, next) => {
 // login user
 exports.login = catchAsync(async (req, res, next) => {
     const { email, password, remember } = req.body;
-
     // check if email and password exist
     if (!email || !password) {
         return next(new AppError(400, 'Please provide email and password!'));
     };
-
     // check if user exists
-    const user = await UserInfo.findOne({
+    const user = await User.findOne({
         where: { email },
-        attributes: ["id", "password", "refresh_token", "is_verified"],
+        attributes: ["id", "password", "refreshToken", "isVerified"],
         include: [Role]
     });
     if (!user) {
         return next(new AppError(400, "Incorrect email or password!"));
     };
-
     // check if password is correct
     const isPasswordCorrect = bcrypt.compareSync(password, user.password);
     if (!isPasswordCorrect) {
         return next(new AppError(400, "Incorrect email or password!"));
     };
-
     // check if user is verified
-    if (user.is_verified !== true) {
+    if (user.isVerified !== true) {
         return next(new AppError(400, "Please verify your email first!"));
     };
-
     // sign a session token and embed it in the cookie
     const sessionToken = await jwtService.sign(
         {
@@ -113,7 +104,6 @@ exports.login = catchAsync(async (req, res, next) => {
     );
     const sessionCookie = await cookieService.encrypt(sessionToken);
     const sessionExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
-
     // assign the cookie to the response
     res.cookie("__session", sessionCookie, {
         expires: sessionExpiry,
@@ -121,7 +111,6 @@ exports.login = catchAsync(async (req, res, next) => {
         secure: req.secure || req.headers['x-forwarded-proto'] === 'https',
         sameSite: process.env.NODE_ENV === "development" ? "Lax" : "Strict"
     });
-
     // send a success message to the client
     res.status(200).send({
         status: "success",
@@ -141,22 +130,24 @@ exports.checkAuth = catchAsync(async (req, res, next) => {
     // verify session token
     const decoded = await promisify(jwt.verify)(sessionToken, process.env.JWT_SESSION_SECRET);
     // fetch user from db
-    const user = await UserInfo.findOne({
+    const user = await User.findOne({
         where: {
             id: decoded.id
         },
-        attributes: ["id", "first_name", "last_name"],
+        attributes: ["id", "firstName", "lastName"],
         include: [Role]
     });
+    // check if user still exists
     if (!user) {
         res.clearCookie("__session");
         return next(new AppError(401, 'The user no longer exists!'));
     };
+    // send success response along with user data
     const userData = {
         id: user.id,
-        firstName: user.first_name,
-        lastName: user.last_name,
-        role: user.role.code
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role.name
     };
     return res.status(200).send({
         status: "success",

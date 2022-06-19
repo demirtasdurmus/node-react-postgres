@@ -13,7 +13,7 @@ module.exports = class Email {
             "personalizations": [
                 {
                     "to": [{ "email": user.email }],
-                    "dynamic_template_data": { name: user.first_name.toUpperCase(), ...data }
+                    "dynamic_template_data": { name: user.firstName.toUpperCase(), ...data }
                 }
             ]
         }

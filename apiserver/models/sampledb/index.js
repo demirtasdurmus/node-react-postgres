@@ -1,12 +1,12 @@
 module.exports = (db, Sequelize) => {
-    const UserInfo = require("./user_info")(db, Sequelize)
+    const User = require("./user")(db, Sequelize)
     const Skill = require("./skill")(db, Sequelize)
-    const LocationOption = require("./location_option")(db, Sequelize)
+    const LocationOption = require("./locationOption")(db, Sequelize)
     const Role = require("./role")(db, Sequelize)
 
     //table relationships
-    UserInfo.hasMany(Skill);
-    Skill.belongsTo(UserInfo,
+    User.hasMany(Skill);
+    Skill.belongsTo(User,
         // {
         //     foreignKey: {
         //         name: 'user_info_id',
@@ -15,8 +15,8 @@ module.exports = (db, Sequelize) => {
         // }
     );
 
-    Role.hasMany(UserInfo);
-    UserInfo.belongsTo(Role,
+    Role.hasMany(User);
+    User.belongsTo(Role,
         // {
         //     foreignKey: {
         //         name: 'role_id',
@@ -36,7 +36,7 @@ module.exports = (db, Sequelize) => {
     );
 
     return {
-        UserInfo,
+        User,
         Skill,
         LocationOption,
         Role
