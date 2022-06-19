@@ -1,6 +1,6 @@
 const AppError = require('./../utils/appError');
 const catchAsync = require('./../utils/catchAsync');
-const { UserInfo, Role } = require('../models/index');
+const { User, Role } = require('../models/index');
 
 exports.getUserById = catchAsync(async (req, res, next) => {
     //TODO:
@@ -11,7 +11,7 @@ exports.updateUserById = catchAsync(async (req, res, next) => {
     //FIXME: add control for multiple images and sync file names
     const url = req.protocol + '://' + req.get('host');
 
-    await UserInfo.update({
+    await User.update({
         profile_img: req.file ? url + "/" + req.file.filename : null
     }, {
         where: {

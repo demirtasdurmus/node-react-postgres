@@ -98,11 +98,6 @@ module.exports = (db, Sequelize) => {
         }
     });
 
-    // User.beforeFind((user) => {
-    //     user.attributes.exclude = ['password'];
-    //     return user;
-    // });
-
     // send a verification email after creating a new user
     User.afterCreate(async (user) => {
         try {

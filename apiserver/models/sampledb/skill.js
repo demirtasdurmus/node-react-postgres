@@ -1,5 +1,3 @@
-const AppError = require("../../utils/appError");
-
 module.exports = (db, Sequelize) => {
     const Skill = db.define("skill",
         {
