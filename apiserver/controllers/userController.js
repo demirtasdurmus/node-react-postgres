@@ -14,12 +14,11 @@ exports.getMe = catchAsync(async (req, res, next) => {
 
 exports.updateUserProfile = catchAsync(async (req, res, next) => {
     const { firstName, lastName } = req.body;
-    let profileImg = null;
-    // find image to delete if it is to be uodated
+    // find image to delete if it is to be updated
     if (req.file) {
         // create new image path
         const hostUrl = req.protocol + '://' + req.get('host');
-        profileImg = hostUrl + '/' + req.file.filename;
+        const profileImg = hostUrl + '/' + req.file.filename;
         const oldUser = await User.findByPk(req.userId);
         if (oldUser.profileImg) {
             // delete old image
@@ -32,11 +31,20 @@ exports.updateUserProfile = catchAsync(async (req, res, next) => {
                 }
             })
         }
-    }
+        const user = await User.update({
+            firstName,
+            lastName,
+            profileImg
+        }, {
+            where: { id: req.userId },
+            returning: ['id', 'first_name', "last_name", "profile_img", 'email'],
+            plain: true
+        });
+        return res.status(200).send({ status: "success", data: user[1] });
+    };
     const user = await User.update({
         firstName,
         lastName,
-        profileImg
     }, {
         where: { id: req.userId },
         returning: ['id', 'first_name', "last_name", "profile_img", 'email'],
