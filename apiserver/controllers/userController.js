@@ -23,7 +23,6 @@ exports.updateUserProfile = catchAsync(async (req, res, next) => {
         if (oldUser.profileImg) {
             // delete old image
             const oldImagePath = `./${process.env.IMAGES_DIR}/${oldUser.profileImg.slice(hostUrl.length + 1)}`;
-            console.log("first", oldImagePath);
             // delete image and send response
             fs.unlink(oldImagePath, (err) => {
                 if (err) {
