@@ -1,16 +1,16 @@
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
-const { UserInfo, Skill, LocationOption } = require('../models/index');
+const { User, Skill, LocationOption } = require('../models/index');
 
 
 exports.getSkillsByUserId = catchAsync(async (req, res, next) => {
-    // extract userId either from the session or from decoded jasonwebtoken
     const skills = await Skill.findAll({
-        where: { userInfoId: req.userId },
+        where: { userId: req.userId },
         include: [
             {
-                model: UserInfo,
+                model: User,
                 required: false,
+                attributes: ['id', 'firstName', 'lastName', 'email']
             },
             {
                 model: LocationOption,
@@ -18,20 +18,20 @@ exports.getSkillsByUserId = catchAsync(async (req, res, next) => {
                 attributes: ["option"]
             },
         ],
-        attributes: ["id", "category", "tag_line", "travel_fee"]
+        attributes: ["id", "category", "tagLine", "travelFee"]
     })
     res.status(200).send({ status: "success", data: skills })
 });
 
 exports.getSkillById = catchAsync(async (req, res, next) => {
-    const { id } = req.params;
-    // get skill by id
+    const { skillId } = req.params;
     const skill = await Skill.findOne({
-        where: { id: id },
+        where: { id: skillId },
         include: [
             {
                 model: LocationOption,
                 required: false,
+                attributes: ["option"]
             },
         ]
     })
@@ -39,51 +39,40 @@ exports.getSkillById = catchAsync(async (req, res, next) => {
 });
 
 exports.createSkill = catchAsync(async (req, res, next) => {
-    // extract userId either from the session of from decoded jasonwebtoken
-    let userId = req.userId;
     const { category, tagLine, travelFee, locationOptions } = req.body;
     if (travelFee && locationOptions.indexOf("choose") < 0) {
-        return next(new AppError(400, "You can specify travel fee only if choose method is included in location options"));
+        return next(new AppError(400, "Travel fee may be specified only if choose method is selected."));
     };
-
     // create the skill
     const skill = await Skill.create({
-        category: category,
-        tag_line: tagLine,
-        travel_fee: travelFee ? travelFee : null,
-        userInfoId: userId
+        category,
+        tagLine,
+        travelFee: travelFee || null,
+        userId: req.userId
     });
-
     // create the location options using the skill id
-    for (let i = 0; i < locationOptions.length; i++) {
-        await LocationOption.create({
-            option: locationOptions[i],
-            skillId: skill.id
-        })
-    };
-    res.status(200).send({ status: "success", data: "" });
+    const optionsArray = JSON.parse(locationOptions).map(option => { return { option, skillId: skill.id } });
+    await LocationOption.bulkCreate(optionsArray);
+    res.status(201).send({ status: "success", data: skill });
 });
 
 exports.updateSkillById = catchAsync(async (req, res, next) => {
-    // extract userId either from the session of from decoded jasonwebtoken
-    let userId = req.userId;
     const { category, tagLine, travelFee, locationOptions } = req.body;
     const { id } = req.params;
     // check if the user is the owner
     const skill = await Skill.findByPk(id);
-    if (userId !== skill.userInfoId) {
+    if (req.userId !== skill.userId) {
         return next(new AppError(401, "Only owner of a skill can update it!!!"))
     };
-
     // check if travel fee requested properly
     if (travelFee && locationOptions.indexOf("choose") < 0) {
-        return next(new AppError(400, "You can specify travel fee only if choose method is included in location options"));
+        return next(new AppError(400, "Travel fee may be specified only if choose method is selected."));
     };
 
     // update the skill
     skill.category = category;
-    skill.tag_line = tagLine;
-    skill.travel_fee = travelFee ? travelFee : null;
+    skill.tagLine = tagLine;
+    skill.travelFee = travelFee ? travelFee : null;
     await skill.save();
 
     // update locationOptions for different scenerios
@@ -123,12 +112,13 @@ exports.updateSkillById = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteSkillById = catchAsync(async (req, res, next) => {
-    // extract userId either from the session of from decoded jasonwebtoken
-    let userId = req.userId;
-    const { id } = req.params;
-    const skill = await Skill.findByPk(id);
+    const { skillId } = req.params;
+    const skill = await Skill.findByPk(skillId);
+    if (!skill) {
+        return next(new AppError(404, "Skill not found!!!"));
+    }
     // check if the user is the owner
-    if (userId !== skill.userInfoId) {
+    if (req.userId !== skill.userId) {
         return next(new AppError(401, "Only owner of a skill can update it!!!"))
     };
     // delete location options

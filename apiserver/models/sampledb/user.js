@@ -82,6 +82,9 @@ module.exports = (db, Sequelize) => {
                 type: Sequelize.TEXT,
                 allowNull: true,
             }
+        },
+        {
+            timestamps: true
         }
     );
 
@@ -94,6 +97,11 @@ module.exports = (db, Sequelize) => {
             throw new AppError(500, err.message, err.name, false, err.stack);
         }
     });
+
+    // User.beforeFind((user) => {
+    //     user.attributes.exclude = ['password'];
+    //     return user;
+    // });
 
     // send a verification email after creating a new user
     User.afterCreate(async (user) => {

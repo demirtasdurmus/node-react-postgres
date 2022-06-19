@@ -4,10 +4,10 @@ const skillController = require('../controllers/skillController');
 
 router
     .get("/", skillController.getSkillsByUserId)
-    .get("/:id", skillController.getSkillById)
+    .get("/:skillId", skillController.getSkillById)
     .post("/", skillController.createSkill)
-    .put("/:id", skillController.updateSkillById)
-    .delete("/:id", skillController.deleteSkillById)
+    .put("/:skillId", skillController.updateSkillById)
+    .delete("/:skillId", skillController.deleteSkillById)
 
 
 module.exports = router;

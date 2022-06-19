@@ -1,6 +1,6 @@
 const { promisify } = require("util");
 const jwt = require('jsonwebtoken');
-const { UserInfo, Role } = require('../models');
+const { User, Role } = require('../models');
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
 const cookieService = require("../services/cookieService");
@@ -17,11 +17,11 @@ module.exports = catchAsync(async (req, res, next) => {
     // verify session token
     const decoded = await promisify(jwt.verify)(sessionToken, process.env.JWT_SESSION_SECRET);
     // fetch user from db
-    const user = await UserInfo.findOne({
+    const user = await User.findOne({
         where: {
             id: decoded.id
         },
-        attributes: ["id", "first_name", "last_name", "email"],
+        attributes: ["id", "firstName", "lastName", "email"],
         include: [Role]
     });
     if (!user) {
@@ -30,7 +30,7 @@ module.exports = catchAsync(async (req, res, next) => {
     };
     // assign the user id to the request object and pass it to the next middleware
     req.userId = user.id;
-    req.role = user.role.description;
+    req.role = user.role.name;
     req.user = user;
     return next();
 });
