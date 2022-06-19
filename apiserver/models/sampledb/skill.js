@@ -26,6 +26,11 @@ module.exports = (db, Sequelize) => {
             travelFee: {
                 type: Sequelize.DECIMAL(10, 2),
                 allowNull: true,
+                validate: {
+                    isNumeric: {
+                        msg: "Only numeric values are allowed for travel fee!",
+                    }
+                }
             },
         });
     return Skill;

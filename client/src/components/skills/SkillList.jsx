@@ -67,24 +67,24 @@ export default function SkillList(props) {
         },
         {
             title: 'Tagline',
-            dataIndex: 'tag_line',
-            key: 'tag_line',
+            dataIndex: 'tagLine',
+            key: 'tagLine',
             align: "center"
         },
         {
             title: 'Travel Fee',
-            dataIndex: 'travel_fee',
-            key: 'travel_fee',
+            dataIndex: 'travelFee',
+            key: 'travelFee',
             align: "center"
         },
         {
             title: 'Location Options',
-            key: 'location_options',
-            dataIndex: 'location_options',
+            key: 'locationOptions',
+            dataIndex: 'locationOptions',
             align: "center",
-            render: location_options => (
+            render: locationOptions => (
                 <React.Fragment>
-                    {location_options.map(option => {
+                    {locationOptions.map(option => {
                         let color = option.length > 5 ? 'geekblue' : 'green';
                         if (option === 'choose') {
                             color = 'volcano';
@@ -111,9 +111,9 @@ export default function SkillList(props) {
             key: skill.id,
             id: index + 1,
             category: skill.category,
-            tag_line: skill.tag_line,
-            travel_fee: skill.travel_fee,
-            location_options: skill.location_options.map(el => el.option),
+            tagLine: skill.tagLine,
+            travelFee: skill.travelFee,
+            locationOptions: skill.locationOptions.map(el => el.option),
             edit:
                 <React.Fragment>
                     <Space>

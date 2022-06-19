@@ -25,7 +25,7 @@ export default class UserService {
 
     // update user's skills
     updateUserSkill(payload) {
-        return this.request.put(`/api/v1/skills/${payload.id}`, payload);
+        return this.request.patch(`/api/v1/skills/${payload.id}`, payload);
     };
 
     // check user's auth status

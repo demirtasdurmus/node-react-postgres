@@ -6,7 +6,7 @@ router
     .get("/", skillController.getSkillsByUserId)
     .get("/:skillId", skillController.getSkillById)
     .post("/", skillController.createSkill)
-    .put("/:skillId", skillController.updateSkillById)
+    .patch("/:skillId", skillController.updateSkillById)
     .delete("/:skillId", skillController.deleteSkillById)
 
 

@@ -2,8 +2,11 @@ const AppError = require('./../utils/appError');
 const catchAsync = require('./../utils/catchAsync');
 const { User, Role } = require('../models/index');
 
-exports.getUserById = catchAsync(async (req, res, next) => {
-    //TODO:
+exports.getMe = catchAsync(async (req, res, next) => {
+    const user = await User.findByPk(req.userId, {
+        attributes: ["id", "firstName", "lastName", "email"],
+    });
+    res.status(200).send({ status: "success", data: user });
 });
 
 exports.updateUserById = catchAsync(async (req, res, next) => {

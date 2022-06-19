@@ -51,16 +51,16 @@ exports.createSkill = catchAsync(async (req, res, next) => {
         userId: req.userId
     });
     // create the location options using the skill id
-    const optionsArray = JSON.parse(locationOptions).map(option => { return { option, skillId: skill.id } });
+    const optionsArray = locationOptions.map(option => { return { option, skillId: skill.id } });
     await LocationOption.bulkCreate(optionsArray);
     res.status(201).send({ status: "success", data: skill });
 });
 
 exports.updateSkillById = catchAsync(async (req, res, next) => {
     const { category, tagLine, travelFee, locationOptions } = req.body;
-    const { id } = req.params;
+    const { skillId } = req.params;
     // check if the user is the owner
-    const skill = await Skill.findByPk(id);
+    const skill = await Skill.findByPk(skillId);
     if (req.userId !== skill.userId) {
         return next(new AppError(401, "Only owner of a skill can update it!!!"))
     };
@@ -68,7 +68,6 @@ exports.updateSkillById = catchAsync(async (req, res, next) => {
     if (travelFee && locationOptions.indexOf("choose") < 0) {
         return next(new AppError(400, "Travel fee may be specified only if choose method is selected."));
     };
-
     // update the skill
     skill.category = category;
     skill.tagLine = tagLine;
@@ -108,7 +107,7 @@ exports.updateSkillById = catchAsync(async (req, res, next) => {
             };
         }
     };
-    res.status(200).send({ status: "success", data: "" });
+    res.status(200).send({ status: "success", data: skill });
 });
 
 exports.deleteSkillById = catchAsync(async (req, res, next) => {

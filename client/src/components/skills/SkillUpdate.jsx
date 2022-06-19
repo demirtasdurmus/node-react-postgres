@@ -59,9 +59,9 @@ export default function SkillUpdate(props) {
                 setInputs({
                     id: res.data.data.id,
                     category: res.data.data.category,
-                    tagLine: res.data.data.tag_line,
-                    travelFee: res.data.data.travel_fee,
-                    locationOptions: res.data.data.location_options.map(e => e.option),
+                    tagLine: res.data.data.tagLine,
+                    travelFee: res.data.data.travelFee,
+                    locationOptions: res.data.data.locationOptions.map(e => e.option),
                 })
             })
             .catch((err) => {
