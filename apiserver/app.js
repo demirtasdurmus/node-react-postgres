@@ -7,7 +7,6 @@ const cookieParser = require('cookie-parser')
 const compression = require('compression');
 const cors = require('cors');
 const helmet = require("helmet");
-// const httpStatus = require('http-status');
 const morgan = require("morgan");
 // internal modules/utils/middlewares/services
 const api = require("./api");

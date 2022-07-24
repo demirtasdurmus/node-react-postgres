@@ -3,7 +3,7 @@ const skillController = require('../controllers/skillController');
 
 
 router
-    .get("/", skillController.getSkillsByUserId)
+    .get("/", skillController.getAllSkills)
     .get("/:skillId", skillController.getSkillById)
     .post("/", skillController.createSkill)
     .patch("/:skillId", skillController.updateSkillById)
