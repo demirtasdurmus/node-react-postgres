@@ -50,6 +50,7 @@ const sendErrorProd = (err, req, res) => {
 // handle errors and send response accordingly
 module.exports = (err, req, res, next) => {
     err.statusCode = err.statusCode || 500;
+    if (err.statusCode === 401) res.clearCookie(process.env.SESSION_COOKIE_NAME)
     err.status = err.status || 'error';
     // handling errors acoording to node_env
     if (process.env.NODE_ENV === 'production') {

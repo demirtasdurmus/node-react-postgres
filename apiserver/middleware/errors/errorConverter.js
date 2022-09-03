@@ -24,15 +24,12 @@ module.exports = (err, req, res, next) => {
         if (error instanceof JsonWebTokenError) {
             error.message = 'Invalid session. Please log in again.';
             error.statusCode = httpStatus.UNAUTHORIZED;
-            res.clearCookie("__session");
         } else if (error instanceof TokenExpiredError) {
             error.message = 'Session expired. Please log in again.';
             error.statusCode = httpStatus.UNAUTHORIZED;
-            res.clearCookie("__session");
         } else if (error instanceof NotBeforeError) {
             error.message = 'Session not active. Please log in again.';
             error.statusCode = httpStatus.UNAUTHORIZED;
-            res.clearCookie("__session");
         } else if (error instanceof Error) {
             error = convertSequelizeError(error);
         } else {

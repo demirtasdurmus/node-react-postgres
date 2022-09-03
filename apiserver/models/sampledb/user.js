@@ -1,8 +1,5 @@
 const bcrypt = require("bcryptjs");
 const AppError = require("../../utils/appError");
-const jwtService = require("../../services/jwtService");
-const EmailService = require("../../services/emailService");
-const { API_URL } = require('../../config');
 
 
 module.exports = (db, Sequelize) => {
@@ -69,6 +66,11 @@ module.exports = (db, Sequelize) => {
                     }
                 }
             },
+            memberStatus: {
+                type: Sequelize.ENUM('active', 'passive'),
+                allowNull: false,
+                defaultValue: 'passive',
+            },
             isVerified: {
                 type: Sequelize.BOOLEAN,
                 allowNull: false,
@@ -90,21 +92,13 @@ module.exports = (db, Sequelize) => {
 
     // hash password before creating a new user
     User.beforeCreate((user) => {
-        try {
-            user.password = bcrypt.hashSync(user.password, Number(process.env.PASSWORD_HASH_CYCLE))
-            user.roleId = 1;
-        } catch (err) {
-            throw new AppError(500, err.message, err.name, false, err.stack);
-        }
+        user.password = bcrypt.hashSync(user.password, Number(process.env.PASSWORD_HASH_CYCLE))
+        user.roleId = 1;
     });
 
-    // send a verification email after creating a new user
+    // set the password confirm field to static value
     User.afterCreate(async (user) => {
         try {
-            // send a verification email
-            const token = await jwtService.sign({ id: user.id }, process.env.JWT_VERIFY_SECRET, process.env.JWT_VERIFY_EXPIRY);
-            const verificationUrl = `${API_URL}/api/${process.env.API_VERSION}/auth/verify/${token}`;
-            await new EmailService(user, { verificationUrl }).sendEmailVerification();
             user.passwordConfirm = 'confirmed';
             await user.save({ validate: false });
         } catch (err) {
