@@ -1,20 +1,11 @@
 const AppError = require('../utils/appError');
 const catchAsync = require('../utils/catchAsync');
-const ApiService = require("../services/apiService");
+// const ApiService = require("../services/apiService");
 const { User, Skill, LocationOption } = require('../models/index');
 
 
 exports.getAllSkills = catchAsync(async (req, res, next) => {
-    console.log(req.query)
-    const searchFields = ['name', 'description'];
-    const apiService = new ApiService(Skill.findAll, req.query, searchFields)
-        .filter()
-    // .sort()
-    // .limitFields()
-    // .paginate();
-    //console.log("first", apiService)
-    // execute query
-    const data = await apiService.query;
+    const data = await Skill.findAll()
     res.status(200).send({ status: "success", results: data.length, data })
 });
 

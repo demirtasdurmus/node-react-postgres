@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
     Form,
     Input,
@@ -9,15 +9,18 @@ import {
 } from 'antd';
 import userService from '../../services/userService';
 import alertNotification from "../../utils/alertNotification";
+import createHttpClient from "../../utils/createHttpClient";
 import useErrorHandler from '../../hooks/useErrorHandler';
 
 
 export default function SkillAdd(props) {
     const { Option } = Select;
-    const { apiRequest, getUserSkills } = props;
+    const { getUserSkills } = props;
 
     // create a new user service instance
-    const service = new userService(apiRequest);
+    const { request, controller } = useRef(createHttpClient()).current;
+    const service = new userService(request);
+
     const { setError } = useErrorHandler();
 
     // state declaration
@@ -48,6 +51,14 @@ export default function SkillAdd(props) {
                 if (err.response) setError(err);
             })
     };
+
+    //  lifecycle
+    useEffect(() => {
+        return () => {
+            controller.abort();
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <Row style={{ marginBottom: "4rem" }}>

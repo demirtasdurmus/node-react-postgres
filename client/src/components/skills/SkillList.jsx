@@ -1,16 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import SkillUpdate from "./SkillUpdate";
 import { Table, Tag, Space, Button, Modal } from 'antd';
 import userService from '../../services/userService';
 import alertNotification from "../../utils/alertNotification";
+import createHttpClient from "../../utils/createHttpClient";
 import useErrorHandler from '../../hooks/useErrorHandler';
 
 
 export default function SkillList(props) {
-    const { apiRequest, userSkills, getUserSkills } = props;
-
+    const { userSkills, getUserSkills } = props;
     // create a new user service instance
-    const service = new userService(apiRequest);
+    const { request, controller } = useRef(createHttpClient()).current;
+    const service = new userService(request);
+
     const { setError } = useErrorHandler();
 
     // state declaration
@@ -84,7 +86,7 @@ export default function SkillList(props) {
             align: "center",
             render: locationOptions => (
                 <React.Fragment>
-                    {locationOptions.map(option => {
+                    {locationOptions?.map(option => {
                         let color = option.length > 5 ? 'geekblue' : 'green';
                         if (option === 'choose') {
                             color = 'volcano';
@@ -106,14 +108,14 @@ export default function SkillList(props) {
         },
     ];
 
-    const data = userSkills.map((skill, index) => {
+    const data = userSkills?.map((skill, index) => {
         return {
             key: skill.id,
             id: index + 1,
             category: skill.category,
             tagLine: skill.tagLine,
             travelFee: skill.travelFee,
-            locationOptions: skill.locationOptions.map(el => el.option),
+            locationOptions: skill.locationOptions?.map(el => el.option),
             edit:
                 <React.Fragment>
                     <Space>
@@ -127,6 +129,14 @@ export default function SkillList(props) {
                 </React.Fragment>
         }
     });
+
+    //  lifecycle
+    useEffect(() => {
+        return () => {
+            controller.abort();
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     return (
         <React.Fragment>

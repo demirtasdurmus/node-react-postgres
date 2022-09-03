@@ -10,6 +10,5 @@ export default function createChannel() {
         },
         signal: controller.signal,
     });
-
     return { request, controller }
 };

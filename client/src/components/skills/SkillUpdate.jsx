@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     Form,
     Input,
@@ -9,15 +9,18 @@ import {
 } from 'antd';
 import userService from '../../services/userService';
 import alertNotification from "../../utils/alertNotification";
+import createHttpClient from "../../utils/createHttpClient";
 import useErrorHandler from '../../hooks/useErrorHandler';
 
 
 export default function SkillUpdate(props) {
     const { Option } = Select;
-    const { apiRequest, getUserSkills, toggleModal, skillId } = props;
+    const { getUserSkills, toggleModal, skillId } = props;
 
     // create a new user service instance
-    const service = new userService(apiRequest);
+    const { request, controller } = useRef(createHttpClient()).current;
+    const service = new userService(request);
+
     const { setError } = useErrorHandler();
 
     const [inputs, setInputs] = useState({
@@ -71,6 +74,9 @@ export default function SkillUpdate(props) {
 
     useEffect(() => {
         getSkillById(skillId);
+        return () => {
+            controller.abort();
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [skillId])
 

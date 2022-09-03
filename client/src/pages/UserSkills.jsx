@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Row, Col } from 'antd';
-import createChannel from '../utils/createChannel';
+import createHttpClient from '../utils/createHttpClient';
 import useErrorHandler from '../hooks/useErrorHandler';
 import userService from '../services/userService';
 import SkillAdd from "../components/skills/SkillAdd";
@@ -9,10 +9,8 @@ import SkillList from "../components/skills/SkillList";
 
 export default function UserSkills() {
     // create a new user service instance
-    const channel = useRef(createChannel());
-    const apiRequest = channel.current.request;
-    const apiController = channel.current.controller;
-    const service = new userService(apiRequest);
+    const { request, controller } = useRef(createHttpClient()).current;
+    const service = new userService(request);
     const { setError } = useErrorHandler();
     let content;
     // state declaration
@@ -30,7 +28,7 @@ export default function UserSkills() {
                 if (err.response) setError(err);
             })
             .finally(() => {
-                !apiController.signal.aborted && setIsLoading(false);
+                !controller.signal.aborted && setIsLoading(false);
             })
     };
 
@@ -38,7 +36,7 @@ export default function UserSkills() {
     useEffect(() => {
         getUserSkills();
         return () => {
-            apiController.abort();
+            controller.abort();
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
@@ -50,7 +48,6 @@ export default function UserSkills() {
             <Row>
                 <Col span={24} style={{ display: 'flex', justifyContent: 'center' }}>
                     <SkillList
-                        apiRequest={apiRequest}
                         userSkills={userSkills}
                         getUserSkills={getUserSkills}
                     />
@@ -63,7 +60,6 @@ export default function UserSkills() {
             <Row style={{ marginTop: '5rem' }}>
                 <Col span={24} style={{ display: 'flex', justifyContent: 'center' }}>
                     <SkillAdd
-                        apiRequest={apiRequest}
                         getUserSkills={getUserSkills}
                     />
                 </Col>
