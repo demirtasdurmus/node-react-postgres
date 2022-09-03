@@ -1,5 +1,5 @@
-const router = require('express').Router();
-const authController = require('../controllers/authController');
+const router = require('express').Router()
+const authController = require('../controllers/authController')
 
 
 router
@@ -9,4 +9,4 @@ router
     .get("/check-auth", authController.checkAuth)
     .get("/logout", authController.logout)
 
-module.exports = router;
+module.exports = router
