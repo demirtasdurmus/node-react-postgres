@@ -7,11 +7,15 @@ const { JsonWebTokenError, TokenExpiredError, NotBeforeError } = require('jsonwe
 const convertSequelizeError = (err) => {
     if (err.name === 'SequelizeValidationError') {
         // create a custom message for Sequelize validation errors
-        let concattedMessage = err.errors.map(er => er.message).join('. ');
-        err.message = `Invalid input: ${concattedMessage}`;
-    };
-    return err;
-};
+        let concattedMessage = err.errors.map(er => er.message).join('. ')
+        err.message = `Invalid input: ${concattedMessage}`
+    } else if (err.name === "SequelizeUniqueConstraintError") {
+        // create a custom message for Sequelize unique constraint errors
+        let concattedMessage = err.errors.map(er => er.message).join('. ')
+        err.message = `Unique key violation: ${concattedMessage}`
+    }
+    return err
+}
 
 // convert non-express errors to AppError
 module.exports = (err, req, res, next) => {
