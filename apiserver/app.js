@@ -8,30 +8,13 @@ const helmet = require("helmet")
 const morgan = require("morgan")
 
 const api = require("./api")
-const Cookie = require("./utils/cookie")
-const JWT = require("./utils/jwt")
-const errorConverter = require('./middleware/errors/errorConverter')
-const errorHandler = require('./middleware/errors/errorHandler')
+const convertErrors = require('./middleware/convertErrors')
+const handleErrors = require('./middleware/handleErrors')
 const app = express()
 
 
 // parsing cookies for auth
 app.use(cookieParser())
-
-// add userId to the request object if exists w/o verifying the token
-app.use((req, res, next) => {
-    const session = req.cookies[process.env.SESSION_COOKIE_NAME]
-    req.userId = "Guest"
-    if (session) {
-        // decode jwt token from cookie session and verify
-        const token = new Cookie().decrypt(session)
-        const payload = new JWT().decode(token)
-        if (payload && !isNaN(+payload.id)) {
-            req.userId = payload.id
-        }
-    }
-    next()
-})
 
 // setting up logger
 if (process.env.NODE_ENV === "development") {
@@ -72,10 +55,8 @@ app.all("*", (req, res, next) => {
     res.status(404).end()
 })
 
-// converting error to AppError, if needed
-app.use(errorConverter)
-
-// handling error
-app.use(errorHandler)
+// convert&handle errors
+app.use(convertErrors)
+app.use(handleErrors)
 
 module.exports = app

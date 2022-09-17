@@ -66,7 +66,7 @@ module.exports = (db, Sequelize) => {
                     }
                 }
             },
-            memberStatus: {
+            status: {
                 type: Sequelize.ENUM('active', 'passive'),
                 allowNull: false,
                 defaultValue: 'passive',
