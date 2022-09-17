@@ -128,8 +128,6 @@ module.exports = class AuthService {
             lastName: user.lastName,
             role: user.role.name,
             email: user.email,
-            isSeller: user.isSeller,
-            inCommunity: user.inCommunity
         }
     }
 
