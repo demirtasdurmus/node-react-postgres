@@ -1,0 +1,14 @@
+[
+    {
+        "name": "user",
+        "code": "xyZ123"
+    },
+    {
+        "name": "admin",
+        "code": "nhZ9o3"
+    },
+    {
+        "name": "superAdmin",
+        "code": "abc123"
+    }
+]

@@ -1,0 +1,32 @@
+[
+    {
+        "firstName": "Durmuş",
+        "lastName": "Demirtaş",
+        "email": "demirtasdurmus@gmail.com",
+        "password": "123456",
+        "passwordConfirm": "123456",
+        "roleId": 1,
+        "isVerified": true,
+        "status": "active"
+    },
+    {
+        "firstName": "Metin",
+        "lastName": "Şeref",
+        "email": "msdd4617@gmail.com",
+        "password": "123456",
+        "passwordConfirm": "123456",
+        "roleId": 2,
+        "isVerified": true,
+        "status": "active"
+    },
+    {
+        "firstName": "Gökhan",
+        "lastName": "Kaya",
+        "email": "fullstaffdeveloper@gmail.com",
+        "password": "123456",
+        "passwordConfirm": "123456",
+        "roleId": 3,
+        "isVerified": true,
+        "status": "active"
+    }
+]

@@ -2,7 +2,7 @@
 /node_modules
 /apiserver/node_modules
 /apiserver/.config.env
-/apiserver/images
+/apiserver/images!
 
 /client/node_modules
 /client/build
@@ -11,7 +11,7 @@
 
 # testing
 /client/coverage
-/apiserver/dev-data
+/apiserver/dev-data!
 
 # misc
 /client/.DS_Store
